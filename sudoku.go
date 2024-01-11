@@ -1,33 +1,51 @@
 package main
 
-// Grid dimensions (9x9)
-const G = 9
+const G = 9  // Grid dimensions (9x9)
+const SG = 3 // Sub-grid dimensions (3x3)
+
+// isValidPlacement receives a 9x9 sudoku board, row, col, and num, and verifies if the number can replace a 0 on the sudoku board
+func isValidPlacement(board [][]int, row int, col int, num int) bool {
+
+	// logic for validating cell and surrounding cells
+
+	return true
+}
 
 // SolveSudoku recieves a 9x9 sudoku board and returns a solved version of the board.
 func SolveSudoku(board [][]int) [][]int {
+	row, col := 0, 0
 
-	// Find an empty space on `board`
-	for row := 0; row < G; row++ {
-		for col := 0; col < G; col++ {
+	for {
+		// Exit while-loop when board coordinate (9,9) reached
+		if row >= G {
+			break
+		}
 
-			// Select number from 1-9 and validate its location in 3x3 sub-grid
-			if board[row][col] == 0 {
-				ValidateSubGrid(board, row, col, board[row][col])
+		if board[row][col] == 0 {
+			for num := 1; num <= G; num++ {
+				// Validate num placement on board
+				if isValidPlacement(board, row, col, num) {
+					board[row][col] = num
+
+					// Return updated board with new num added
+					if SolveSudoku(board) != nil {
+						return board
+					}
+
+					board[row][col] = 0 // Backtrack num placement if new num XXX
+				}
 			}
+			return nil // Cannot place num in this cell
+		}
 
-			// Some back-tracking stuff probably
+		col++
 
-			// Guard clause for if the board cannot be solbved
+		// Move to next row when last column reached
+		if col >= G {
+			col = 0
+			row++
 		}
 	}
 
 	return board
-}
-
-// ValidateSubGrid (helper function) takes a 9x9 sudoku board, a row, a column, and a number
-// and returns true if the number can be placed in the given 3x3 sub-grid.
-func ValidateSubGrid(board [][]int, row int, col int, num int) bool {
-	// Check row and col and verify num placed is valid
-
-	return true
 }
