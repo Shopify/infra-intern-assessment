@@ -29,7 +29,11 @@ func TestSolveSudoku(t *testing.T) {
 		{2, 8, 7, 4, 1, 9, 6, 3, 5},
 		{3, 4, 5, 2, 8, 6, 1, 7, 9},
 	}
-
+	inputCopy := make([][]int, len(input))
+	for i := range input {
+    	inputCopy[i] = make([]int, len(input[i]))
+    	copy(inputCopy[i], input[i])
+	}
 	solved := SolveSudoku(input)
 
 	if !reflect.DeepEqual(solved, expected) {
