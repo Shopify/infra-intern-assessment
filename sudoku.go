@@ -5,26 +5,60 @@ import (
 )
 
 // Filters out the given val from the arr
-func filter(arr []int, val int) []int {
-
-	var vals []int
-	for _, v := range arr {
-		if v != val {
-			vals = append(vals, v)
+func filter[T any](ss []T, test func(T) bool) (ret []T) {
+	for _, s := range ss {
+		if test(s) {
+			ret = append(ret, s)
 		}
 	}
-	return vals
+	return
 }
 
 // updates the domains of all the peers of the given cell, aka removes the given value from the domains of all peers
 func update(peers map[[2]int][][2]int, domains map[[2]int][]int, cell [2]int, value int) {
 
 	for _, neighbor := range peers[cell] {
-		domains[neighbor] = filter(domains[neighbor], value)
+		domains[neighbor] = filter(domains[neighbor], func(i int) bool {
+			return i != value
+		})
 	}
 }
 
-func backtrack(board [][]int, peers map[[2]int][][2]int, domains map[[2]int][]int, variables [][2]int) {
+func copy(domains map[[2]int][]int) map[[2]int][]int {
+	newDomain := make(map[[2]int][]int)
+	for k, v := range domains {
+		newDomain[k] = v
+	}
+	return newDomain
+}
+
+func backtrack(board [][]int, peers map[[2]int][][2]int, domains map[[2]int][]int, variables [][2]int) bool {
+	// If the candidate is fine
+	if len(variables) == 0 {
+
+		return true
+	}
+
+	cell := variables[0]
+
+	// Try every value
+	for _, value := range domains[cell] {
+
+		board[cell[0]][cell[1]] = value
+
+		// Create a candidate
+		copiedDomain := copy(domains)
+
+		// Basic domain pruning
+		update(peers, copiedDomain, cell, value)
+
+		// Search with this candidate and we reduce the variables
+		if backtrack(board, peers, copiedDomain, variables[1:]) {
+			return true
+		}
+		board[cell[0]][cell[1]] = 0
+	}
+	return false
 
 }
 
@@ -78,11 +112,14 @@ func SolveSudoku(board [][]int) [][]int {
 			}
 		}
 	}
-	// Sorts the variables based off the size of domain for each variable
 
+	// Sorts the variables based off the size of domain for each variable
+	// Degree heuristic, we choose each variable based off the number of values in hopes this will prune the search tree
 	sort.SliceStable(variables, func(i, j int) bool {
 		return len(domains[variables[i]]) < len(domains[variables[j]])
 	})
+
+	backtrack(board, peers, domains, variables)
 
 	return board
 }
