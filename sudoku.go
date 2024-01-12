@@ -10,9 +10,52 @@
 
 package main
 
+import "fmt"
+
 const GridDims, SubGridDims = 9, 3
 
-// `isValidPlacement` receives a 9x9 sudoku board, row, col, and num,
+// `SolveSudoku` recieves a 9x9 sudoku board and returns a solved version of the board.
+// If no solution is found, the function returns nil.
+func SolveSudoku(board [][]int) [][]int {
+	row, col := 0, 0
+
+	// Iterate through board cells until empty cell is found
+	for {
+		// Increment `row` when last `col` reached, reset `col` index
+		if col >= GridDims {
+			row++
+			col = 0
+		}
+
+		// Exit while-loop and print solved board when board coordinate (9,9) reached
+		if row >= GridDims {
+			printBoard(&board)
+			return board
+		}
+
+		// Check if cell is empty
+		if board[row][col] == 0 {
+			// Iterate through possible numbers to place in cell
+			for num := 1; num <= GridDims; num++ {
+				// Validate `num` placement on board
+				if isValidPlacement(&board, row, col, num) {
+					board[row][col] = num
+
+					// Validate next board coordinate
+					if SolveSudoku(board) != nil {
+						return board
+					}
+
+					board[row][col] = 0 // Backtrack `num` placement if no solution found
+				}
+			}
+			return nil // Cannot place `num` in this cell
+		}
+		col++
+	}
+}
+
+// `isValidPlacement` receives a 9x9 sudoku board pointer, row, col, and num,
 // and verifies if the number can replace a 0 on the sudoku board.
 func isValidPlacement(board *[][]int, row int, col int, num int) bool {
 	// Check if `num` exists in the current row or column
@@ -34,44 +77,9 @@ func isValidPlacement(board *[][]int, row int, col int, num int) bool {
 	return true
 }
 
-// `SolveSudoku` recieves a 9x9 sudoku board and returns a solved version of the board.
-// If no solution is found, the function returns nil.
-func SolveSudoku(board [][]int) [][]int {
-	row, col := 0, 0
-
-	// Iterate through board cells until empty cell is found
-	for {
-		// Increment `row` when last `col` reached, reset `col` index
-		if col >= GridDims {
-			row++
-			col = 0
-		}
-
-		// Exit while-loop when board coordinate (9,9) reached
-		if row >= GridDims {
-			return board
-		}
-
-		// Check if cell is empty
-		if board[row][col] == 0 {
-			// Iterate through possible numbers to place in cell
-			for num := 1; num <= GridDims; num++ {
-				// Validate `num` placement on board
-				if isValidPlacement(&board, row, col, num) {
-					board[row][col] = num
-
-					// Validate next board coordinate
-					if SolveSudoku(board) != nil {
-						return board
-					}
-
-					board[row][col] = 0 // Backtrack `num` placement if no solution found
-				}
-			}
-
-			return nil // Cannot place `num` in this cell
-		}
-
-		col++
+// `printBoard` receives a 9x9 sudoku board pointer and prints the board to the console.
+func printBoard(board *[][]int) {
+	for row := 0; row < GridDims; row++ {
+		fmt.Println((*board)[row])
 	}
 }
