@@ -5,17 +5,12 @@ import (
 )
 
 /**
-Do not return anything, modify board in-place instead.
+Hello guys, I have completed the **Infrastructure Engineering** assessment using a backtracking solution. I will summarize my thought process below.
 
-The first thing to do is to maintain 9 cols plus 9 rows set so 18
-Then maintain 9 more sets for all blocks
+The first thing to do is to maintain 18 sets which include 9 cols plus 9 rows set so 18. Then maintain another 9 more sets for all blocks
 
-As you traverse, you also want to maintain a row of coordinates you need to fill
-
-Then start filling out the solution simply by doing this
-
-use dfs to fill out the solution, and when you backtrack dlete.
-if you manage to get to the end of the array, return,
+As you traverse, you also want to maintain a row of coordinates you need to fill, so go through the array in the beginning and get all 0s. Then start filling out the solution simply by utilizing a backtracking depth-first search (dfs) to fill out the solution, and when you want to leave the backtrack, you delete your addition to the set.
+if you manage to get to the end of the array, return. if you encounter an item that is invalid (breaking rules of the game) then return but change the item back to 0
 */
 
 func SolveSudoku(board [][]int) [][]int {
