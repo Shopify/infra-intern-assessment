@@ -36,3 +36,24 @@ func TestSolveSudoku(t *testing.T) {
 		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
 	}
 }
+
+// test when there is no solution
+func TestSolveSudokuNoSolution(t *testing.T) {
+	input := [][]int{
+		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+		{0, 9, 8, 0, 0, 0, 6, 0, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 6, 0},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 5, 0},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+
+	solved := SolveSudoku(input)
+
+	if solved != nil {
+		t.Errorf("Sudoku puzzle was solved when it should not have been. Expected nil, got:\n%v", solved)
+	}
+}
