@@ -86,10 +86,11 @@ func (s *SudokuBoard) Solve(cur_r, cur_c int) bool {
 func SolveSudoku(board [][]int) [][]int {
 	sudoku := NewSudokuBoard(board)
 
-	// currently we don't use the return value of Solve()
-	// but we could use it to check if the board is solvable
-	// and perform some error handling
-	_ = sudoku.Solve(0, 0)
+	solvable := sudoku.Solve(0, 0)
 
-	return board
+	if solvable {
+		return sudoku.board
+	} else {
+		return nil
+	}
 }
