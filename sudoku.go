@@ -1,61 +1,25 @@
 package main
 
-import "fmt"
+const SIZE = 9
 
-type cell struct {
-	i int
-	j int
-	value int
-	shiftedPossibleSol []bool
-}
+func SolveSudoku(in [][]int) [][]int {
+	workingCopy := copySlice(in)
+	workingCells := transformToCells(workingCopy)
 
-func (c *cell) addSol(v int) {
-	c.shiftedPossibleSol[v - 1] = true
-}
+	prunePossibleSol(workingCells)
+	allMissingCells := []cell{}
 
-func (c *cell) removeSol(v int) {
-	c.shiftedPossibleSol[v - 1] = false
-}
-
-func (c *cell) removeSolSlice(v []int) {
-	for _, v := range v{
-		c.removeSol(v)
-	}
-}
-
-func (c *cell) tryOneSolution() int {
-	for i, v := range c.shiftedPossibleSol {
-		if v {
-			return i + 1
+	for i := range workingCells {
+		for _, c := range workingCells[i] {
+			if c.value == 0 {
+				allMissingCells = append(allMissingCells, c)
+			}
 		}
 	}
-	return -1
+	solver(workingCopy, allMissingCells, 0)
+	return workingCopy
 }
 
-func (c *cell) possibleSolution() []int {
-	r := []int{}
-	for i, v := range c.shiftedPossibleSol {
-		if v {
-			r = append(r, i + 1)
-		}
-	}
-	return r
-}
-
-func newCell(i int, j int, val int) cell {
-	set := make([]bool, 9)
-
-	for i := range set {
-		set[i] = true
-	}
-
-	return cell{
-		i: i,
-		j: j,
-		value: val,
-		shiftedPossibleSol: set,
-	}
-}
 
 func prunePossibleSol(board [][]cell) {
 	var rowValues, columnValues []int
@@ -66,6 +30,7 @@ func prunePossibleSol(board [][]cell) {
 		columnValues = []int{}
 		rowMissingCell = []cell{}
 		columnMissingCell = []cell{}
+
 		for j := range board[i] {
 			cRow = board[i][j]
 
@@ -93,77 +58,67 @@ func prunePossibleSol(board [][]cell) {
 	}
 }
 
-func solver(workingBoard [][]cell, missingCell []cell, current int) bool {
+func solver(workingCells [][]int, missingCell []cell, current int) bool {
 	if current >= len(missingCell) {
 		return true
 	}
 	c := &missingCell[current]
 
-	s := c.possibleSolution()
+	s := c.PossibleSol()
 	for solCount := len(s) - 1; solCount >= 0; solCount-- {
 		c.value = s[solCount]
+		workingCells[c.i][c.j] = s[solCount]
 
-		if !changeIsValid(workingBoard, *c) {
+		if !changeIsValid(workingCells, *c) {
 			continue
 		}
 
-		if solver(workingBoard, missingCell , current + 1) {
+		if solver(workingCells, missingCell, current+1) {
 			return true
 		}
 	}
+	workingCells[c.i][c.j] = 0
 	return false
 }
 
-func solve(in [][]int) {
-	workingBoard := transformToCells(in)
-	prunePossibleSol(workingBoard)
-	allMissingCells := []cell{}
-
-	var a *cell
-	for i := range workingBoard {
-		for j := range workingBoard[i] {
-			a = &workingBoard[i][j]
-			if a.value == 0 {
-				allMissingCells = append(allMissingCells, *a)
-			}
-		}
-	}
-	fmt.Println(allMissingCells)
-	if solver(workingBoard, allMissingCells, 0) {
-		for i := range workingBoard {
-			for j, c := range workingBoard[i] {
-				in[i][j] = c.value
-			}
-		}
-	}
+func changeIsValid(workingCells [][]int, change cell) bool {
+	return rowIsValid(workingCells, change) && columnIsValid(workingCells, change) && blockIsValid(workingCells, change)
 }
 
-func changeIsValid(workingBoard [][]cell, change cell) bool {
-	return rowIsValid(workingBoard, change) && columnIsValid(workingBoard, change) && blockIsValid(workingBoard, change)
-}
-
-func rowIsValid(workingBoard [][]cell, change cell) bool {
-	for j := range workingBoard {
-		if change.value == workingBoard[change.i][j].value {
+func rowIsValid(workingCells [][]int, change cell) bool {
+	for j := range workingCells {
+		if change.j == j {
+			continue
+		}
+		if change.value == workingCells[change.i][j] {
 			return false
 		}
 	}
 	return true
 }
 
-func columnIsValid(workingBoard [][]cell, change cell) bool {
-	for i := range workingBoard[change.j] {
-		if change.value == workingBoard[i][change.j].value {
+func columnIsValid(workingCells [][]int, change cell) bool {
+	for i := range workingCells[change.j] {
+		if change.i == i {
+			continue
+		}
+		if change.value == workingCells[i][change.j] {
 			return false
 		}
 	}
 	return true
 }
 
-func blockIsValid(workingBoard[][]cell, change cell) bool {
-	for i := change.i / 3; i < change.i/3 + 3; i++ {
-		for j := change.j / 3; j < change.j/3 + 3; j++ {
-			if workingBoard[i][j].value == change.value {
+func blockIsValid(workingCells [][]int, change cell) bool {
+	// Divide since both type is int, its floor division
+	blockStartRow := (change.i / 3) * 3
+	blockStartColumn := (change.j / 3) * 3
+	for i := blockStartRow; i < blockStartRow+3; i++ {
+		for j := blockStartColumn; j < blockStartColumn+3; j++ {
+			if change.j == j && change.i == i {
+				continue
+			}
+			if workingCells[i][j] == change.value {
 				return false
 			}
 		}
@@ -172,41 +127,12 @@ func blockIsValid(workingBoard[][]cell, change cell) bool {
 }
 
 
-func transformToCells(in [][]int) [][]cell {
-	board := make([][]cell, len(in))
-	for i := range in {
-		for j := range in[i] {
-			board[i] = append(board[i], newCell(i, j, in[i][j]))
-		}
-	}
-	return board
-}
-
-
-
 func copySlice[T any](src [][]T) (dest [][]T) {
 	dest = make([][]T, len(src))
-	for i := range src{
+	for i := range src {
 		dest[i] = make([]T, len(src[i]))
 		copy(dest[i], src[i])
 	}
 
 	return dest
-}
-
-func main() {
-	input := [][]int{
-		{5, 3, 0, 0, 7, 0, 0, 0, 0},
-		{6, 0, 0, 1, 9, 5, 0, 0, 0},
-		{0, 9, 8, 0, 0, 0, 0, 6, 0},
-		{8, 0, 0, 0, 6, 0, 0, 0, 3},
-		{4, 0, 0, 8, 0, 3, 0, 0, 1},
-		{7, 0, 0, 0, 2, 0, 0, 0, 6},
-		{0, 6, 0, 0, 0, 0, 2, 8, 0},
-		{0, 0, 0, 4, 1, 9, 0, 0, 5},
-		{0, 0, 0, 0, 8, 0, 0, 7, 9},
-	}
-
-	solve(input)
-	fmt.Println(input)
 }
