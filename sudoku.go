@@ -33,7 +33,7 @@ func SolveSudoku(puzzle [][]int) [][]int {
 
 /**
  * Checks if a value is possible in a given position.
- * We check if 
+ * We check if there exists a value in the same row, column or box with the same value.
  * @param y The y coordinate / row
  * @param x The x coordinate / column
  * @param val The value to check
