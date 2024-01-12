@@ -15,11 +15,24 @@ type coords struct {
 // solves the given sudoku board
 func SolveSudoku(board [][]int) [][]int {
 
+	// print the input board
+	fmt.Println("Input Board:")
+	fmt.Println()
+	for row := 0; row < BoardSize; row++ {
+		for column := 0; column < BoardSize; column++ {
+			fmt.Print(board[row][column], "  ")
+		}
+		fmt.Println()
+	}
+
 	// solve the sudoku board
 	Solve(board)
+	fmt.Println()
+	fmt.Println()
 
 	// print the solved board so that it is structured nicely in the terminal
-	fmt.Println("Solved Sodoku:")
+	fmt.Println("Solved Board:")
+	fmt.Println()
 	for row := 0; row < BoardSize; row++ {
 		for column := 0; column < BoardSize; column++ {
 			fmt.Print(board[row][column], "  ")
