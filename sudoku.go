@@ -14,21 +14,19 @@ const GridDims, SubGridDims = 9, 3
 
 // `isValidPlacement` receives a 9x9 sudoku board, row, col, and num,
 // and verifies if the number can replace a 0 on the sudoku board.
-func isValidPlacement(board [][]int, row int, col int, num int) bool {
+func isValidPlacement(board *[][]int, row int, col int, num int) bool {
 	// Check if `num` exists in the current row or column
 	for idx := 0; idx < GridDims; idx++ {
-		if board[row][idx] == num || board[idx][col] == num {
+		if (*board)[row][idx] == num || (*board)[idx][col] == num {
 			return false
 		}
 	}
 
 	// Check if `num` exists in the 3x3 sub-grid
 	rowInit, colInit := row-(row%3), col-(col%3) // get coordinates of sub-grid starting cell
-	for rowIdx := 0; rowIdx < SubGridDims; rowIdx++ {
-		for colIdx := 0; colIdx < SubGridDims; colIdx++ {
-			if board[rowInit+rowIdx][colInit+colIdx] == num {
-				return false
-			}
+	for idx := 0; idx < GridDims; idx++ {
+		if (*board)[rowInit+idx/SubGridDims][colInit+idx%SubGridDims] == num {
+			return false
 		}
 	}
 
@@ -45,13 +43,13 @@ func SolveSudoku(board [][]int) [][]int {
 	for {
 		// Increment `row` when last `col` reached, reset `col` index
 		if col >= GridDims {
-			col = 0
 			row++
+			col = 0
 		}
 
 		// Exit while-loop when board coordinate (9,9) reached
 		if row >= GridDims {
-			break
+			return board
 		}
 
 		// Check if cell is empty
@@ -59,7 +57,7 @@ func SolveSudoku(board [][]int) [][]int {
 			// Iterate through possible numbers to place in cell
 			for num := 1; num <= GridDims; num++ {
 				// Validate `num` placement on board
-				if isValidPlacement(board, row, col, num) {
+				if isValidPlacement(&board, row, col, num) {
 					board[row][col] = num
 
 					// Validate next board coordinate
@@ -76,6 +74,4 @@ func SolveSudoku(board [][]int) [][]int {
 
 		col++
 	}
-
-	return board
 }
