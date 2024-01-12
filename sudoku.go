@@ -1,49 +1,95 @@
 package main
 
-import "fmt"
-
-// this class represents a sudoku board. It is simply a 2D slice of integers
-type SudokuBoard struct{ board [][]int }
-
-// creat new sudoku board from a 2D slice of integers
-func NewSudokuBoard(board [][]int) *SudokuBoard { 
-	return &SudokuBoard{board: board} 
+// representation of a sudoku board
+type SudokuBoard struct {
+	board    [][]int
+	num_rows int
+	num_cols int
 }
 
-// helper to print board
-func (s *SudokuBoard) PrintBoard() {
-	for _, row := range s.board {
-		for _, col := range row {
-			fmt.Print(col, " ")
-		}
-		fmt.Println()
+// creat new sudoku board from a 2D slice of integers
+func NewSudokuBoard(board [][]int) *SudokuBoard {
+	return &SudokuBoard{
+		board:    board,
+		num_rows: len(board),
+		num_cols: len(board[0]),
 	}
 }
 
-func (s *SudokuBoard) Solve() {
-	// there are two main ways this can be solved. The first
-	// method is to brute force all different possible combinations
-	// of the board which is exponential in time (about 9^(n^2)) where
-	// n is the number of 0's on the board
+func (s *SudokuBoard) IsValidMove(r, c, num int) bool {
+	// first check rows
+	for row_idx := 0; row_idx < 9; row_idx++ {
+		if s.board[row_idx][c] == num {
+			return false
+		}
+	}
 
-	// another solution is to use backtracking, which for every index,
-	// tries a number and then recursively moves on to the next unfilled
-	// index. once it is solved (or not solved) it will revert the change
-	// and (depending on if this way worked) try the other numbers.
+	// check cols
+	for col_idx := 0; col_idx < 9; col_idx++ {
+		if s.board[r][col_idx] == num {
+			return false
+		}
+	}
 
-	// interestingly this has the same runtime since at worst you have to try
-	// all possible combinations, but since this will "short-circuit" the moment
-	// an incorrect move is made, the real run-time should be a lot faster.
+	// check the corresponding 3x3 box
+	box_row := r - r%3
+	box_col := c - c%3
 
-	// short-circuit means pruning the search tree so we don't explore a move
-	// that we know won't actually work
+	for row_idx := 0; row_idx < 3; row_idx++ {
+		for col_idx := 0; col_idx < 3; col_idx++ {
+			if s.board[box_row+row_idx][box_col+col_idx] == num {
+				return false
+			}
+		}
+	}
+
+	return true
+}
+
+func (s *SudokuBoard) Solve(cur_r, cur_c int) bool {
+	if cur_r == s.num_rows-1 && cur_c == s.num_cols {
+		return true
+	}
+
+	// end of column, move to next row and first column
+	if cur_c > s.num_cols-1 {
+		cur_r++
+		if cur_r >= s.num_rows {
+			return true // reached the end of the board
+		}
+		cur_c = 0
+	}
+
+	// current spot is already populated, go to next box
+	if s.board[cur_r][cur_c] != 0 {
+		return s.Solve(cur_r, cur_c+1)
+	}
+
+	for possible_num := 1; possible_num <= 9; possible_num++ {
+		if s.IsValidMove(cur_r, cur_c, possible_num) {
+			// recursively check if this move leads to a solution
+			// if it does, return true, otherwise revert the change
+			s.board[cur_r][cur_c] = possible_num
+
+			if s.Solve(cur_r, cur_c+1) {
+				return true
+			} else {
+				s.board[cur_r][cur_c] = 0
+			}
+
+		}
+	}
+
+	return false
 }
 
 func SolveSudoku(board [][]int) [][]int {
 	sudoku := NewSudokuBoard(board)
-	// sudoku.PrintBoard()
 
-	sudoku.Solve()
+	// currently we don't use the return value of Solve()
+	// but we could use it to check if the board is solvable
+	// and perform some error handling
+	_ = sudoku.Solve(0, 0)
 
 	return board
 }
