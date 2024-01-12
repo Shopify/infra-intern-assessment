@@ -47,7 +47,7 @@ func (c *cell) PossibleSol() []int {
 }
 
 
-func transformToCells(in [][]int) [][]cell {
+func toCells(in [][]int) [][]cell {
 	board := make([][]cell, len(in))
 	for i := range in {
 		for j := range in[i] {

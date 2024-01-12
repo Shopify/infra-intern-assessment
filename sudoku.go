@@ -4,9 +4,9 @@ const SIZE = 9
 
 func SolveSudoku(in [][]int) [][]int {
 	workingCopy := copySlice(in)
-	workingCells := transformToCells(workingCopy)
+	workingCells := toCells(workingCopy)
 
-	prunePossibleSol(workingCells)
+	prune(workingCells)
 	allMissingCells := []cell{}
 
 	for i := range workingCells {
@@ -16,12 +16,35 @@ func SolveSudoku(in [][]int) [][]int {
 			}
 		}
 	}
-	solver(workingCopy, allMissingCells, 0)
+	search(workingCopy, allMissingCells, 0)
 	return workingCopy
 }
 
+func search(workingCells [][]int, missingCell []cell, current int) bool {
+	if current >= len(missingCell) {
+		return true
+	}
 
-func prunePossibleSol(board [][]cell) {
+	c := &missingCell[current]
+	sol := c.PossibleSol()
+	for count := len(sol) - 1; count >= 0; count-- {
+		c.value = sol[count]
+		workingCells[c.i][c.j] = sol[count]
+
+		if !changeIsValid(workingCells, *c) {
+			continue
+		}
+
+		if search(workingCells, missingCell, current+1) {
+			return true
+		}
+	}
+	workingCells[c.i][c.j] = 0
+	return false
+}
+
+
+func prune(board [][]cell) {
 	var rowValues, columnValues []int
 	var cRow, cColumn cell
 	var rowMissingCell, columnMissingCell []cell
@@ -58,67 +81,45 @@ func prunePossibleSol(board [][]cell) {
 	}
 }
 
-func solver(workingCells [][]int, missingCell []cell, current int) bool {
-	if current >= len(missingCell) {
-		return true
-	}
-	c := &missingCell[current]
 
-	s := c.PossibleSol()
-	for solCount := len(s) - 1; solCount >= 0; solCount-- {
-		c.value = s[solCount]
-		workingCells[c.i][c.j] = s[solCount]
-
-		if !changeIsValid(workingCells, *c) {
-			continue
-		}
-
-		if solver(workingCells, missingCell, current+1) {
-			return true
-		}
-	}
-	workingCells[c.i][c.j] = 0
-	return false
+func changeIsValid(workingCells [][]int, changed cell) bool {
+	return rowIsValid(workingCells, changed) && columnIsValid(workingCells, changed) && blockIsValid(workingCells, changed)
 }
 
-func changeIsValid(workingCells [][]int, change cell) bool {
-	return rowIsValid(workingCells, change) && columnIsValid(workingCells, change) && blockIsValid(workingCells, change)
-}
-
-func rowIsValid(workingCells [][]int, change cell) bool {
+func rowIsValid(workingCells [][]int, changed cell) bool {
 	for j := range workingCells {
-		if change.j == j {
+		if changed.j == j {
 			continue
 		}
-		if change.value == workingCells[change.i][j] {
+		if changed.value == workingCells[changed.i][j] {
 			return false
 		}
 	}
 	return true
 }
 
-func columnIsValid(workingCells [][]int, change cell) bool {
-	for i := range workingCells[change.j] {
-		if change.i == i {
+func columnIsValid(workingCells [][]int, changed cell) bool {
+	for i := range workingCells[changed.j] {
+		if changed.i == i {
 			continue
 		}
-		if change.value == workingCells[i][change.j] {
+		if changed.value == workingCells[i][changed.j] {
 			return false
 		}
 	}
 	return true
 }
 
-func blockIsValid(workingCells [][]int, change cell) bool {
+func blockIsValid(workingCells [][]int, changed cell) bool {
 	// Divide since both type is int, its floor division
-	blockStartRow := (change.i / 3) * 3
-	blockStartColumn := (change.j / 3) * 3
+	blockStartRow := (changed.i / 3) * 3
+	blockStartColumn := (changed.j / 3) * 3
 	for i := blockStartRow; i < blockStartRow+3; i++ {
 		for j := blockStartColumn; j < blockStartColumn+3; j++ {
-			if change.j == j && change.i == i {
+			if changed.j == j && changed.i == i {
 				continue
 			}
-			if workingCells[i][j] == change.value {
+			if workingCells[i][j] == changed.value {
 				return false
 			}
 		}
