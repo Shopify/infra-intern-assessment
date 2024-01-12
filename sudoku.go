@@ -10,14 +10,13 @@
 
 package main
 
-const G = 9  // Grid dimensions (9x9)
-const SG = 3 // Sub-grid dimensions (3x3)
+const GridDims, SubGridDims = 9, 3
 
-// `isValidPlacement` (helper function) receives a 9x9 sudoku board, row, col, and num,
-// and verifies if the number can replace a 0 on the sudoku board
+// `isValidPlacement` receives a 9x9 sudoku board, row, col, and num,
+// and verifies if the number can replace a 0 on the sudoku board.
 func isValidPlacement(board [][]int, row int, col int, num int) bool {
 	// Check if `num` exists in the current row or column
-	for idx := 0; idx < G; idx++ {
+	for idx := 0; idx < GridDims; idx++ {
 		if board[row][idx] == num || board[idx][col] == num {
 			return false
 		}
@@ -25,8 +24,8 @@ func isValidPlacement(board [][]int, row int, col int, num int) bool {
 
 	// Check if `num` exists in the 3x3 sub-grid
 	rowInit, colInit := row-(row%3), col-(col%3) // get coordinates of sub-grid starting cell
-	for rowIdx := 0; rowIdx < SG; rowIdx++ {
-		for colIdx := 0; colIdx < SG; colIdx++ {
+	for rowIdx := 0; rowIdx < SubGridDims; rowIdx++ {
+		for colIdx := 0; colIdx < SubGridDims; colIdx++ {
 			if board[rowInit+rowIdx][colInit+colIdx] == num {
 				return false
 			}
@@ -38,23 +37,27 @@ func isValidPlacement(board [][]int, row int, col int, num int) bool {
 }
 
 // `SolveSudoku` recieves a 9x9 sudoku board and returns a solved version of the board.
+// If no solution is found, the function returns nil.
 func SolveSudoku(board [][]int) [][]int {
 	row, col := 0, 0
 
+	// Iterate through board cells until empty cell is found
 	for {
 		// Increment `row` when last `col` reached, reset `col` index
-		if col >= G {
+		if col >= GridDims {
 			col = 0
 			row++
 		}
 
 		// Exit while-loop when board coordinate (9,9) reached
-		if row >= G {
+		if row >= GridDims {
 			break
 		}
 
+		// Check if cell is empty
 		if board[row][col] == 0 {
-			for num := 1; num <= G; num++ {
+			// Iterate through possible numbers to place in cell
+			for num := 1; num <= GridDims; num++ {
 				// Validate `num` placement on board
 				if isValidPlacement(board, row, col, num) {
 					board[row][col] = num
