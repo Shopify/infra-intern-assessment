@@ -1,6 +1,9 @@
 name: Run Tests
 
 on:
+  push:
+    branches:
+      - '**' # This will trigger the action on push to any branch
   pull_request:
     branches:
       - main
