@@ -1,59 +1,19 @@
-# Technical Instructions
-1. Fork this repo to your local Github account.
-2. Create a new branch to complete all your work in.
-3. Test your work using the provided tests
-4. Create a Pull Request against the Shopify Main branch when you're done and all tests are passing
+# Introduction
+Hello! My name is Karthik and I'm a 3a Computer Science student at the University of Waterloo. 
 
-# Shopify Intern Assessment Production Engineering
+# Shopify Infra Intern Assessment
 
-## Description
+## Solution
+This Sudoku solver works using a search and backtracking solution. In short, it tries to fill each empty cell on the board in order starting from the top left, and checks if the number we filled in is valid or not.
 
-Write a Go program that solves a given Sudoku puzzle. The program should take a 9x9 grid as input, where empty cells are represented by zeros (0), and output the solved Sudoku grid.
+Here's how it works:
 
-A Sudoku puzzle is a 9x9 grid divided into nine 3x3 sub-grids. The goal is to fill in the empty cells with numbers from 1 to 9, such that each row, each column, and each sub-grid contains all the numbers from 1 to 9 without repetition.
+1. It starts at the top-left cell (0,0) and traverses through each cell in the grid row by row ignoring cells that are already filled.
+2. If a cell is not filled, it tries all numbers from 1-9 until it finds one that is valid to enter then recursively tries to fill in the next
+3. If it manages to fill all the cells after the current cell without violating the Sudoku rules, we have found a solution.
+4. If it becomes impossible to fill a cell with a valid number, it clears that cell and backtracks
 
-Your program should implement an efficient algorithm to solve the Sudoku puzzle and print the solved grid to the console.
+The helper function `isValid()` does the validation check. It accepts a number and a cell position and checks if it's valid (no repetition on row, col or block) to put in the cell.
 
-### Example: Input:
-```
-[
-  [5, 3, 0, 0, 7, 0, 0, 0, 0],
-  [6, 0, 0, 1, 9, 5, 0, 0, 0],
-  [0, 9, 8, 0, 0, 0, 0, 6, 0],
-  [8, 0, 0, 0, 6, 0, 0, 0, 3],
-  [4, 0, 0, 8, 0, 3, 0, 0, 1],
-  [7, 0, 0, 0, 2, 0, 0, 0, 6],
-  [0, 6, 0, 0, 0, 0, 2, 8, 0],
-  [0, 0, 0, 4, 1, 9, 0, 0, 5],
-  [0, 0, 0, 0, 8, 0, 0, 7, 9]
-]
-```
-
-### Program Output:
-```
-[
-  [5, 3, 4, 6, 7, 8, 9, 1, 2],
-  [6, 7, 2, 1, 9, 5, 3, 4, 8],
-  [1, 9, 8, 3, 4, 2, 5, 6, 7],
-  [8, 5, 9, 7, 6, 1, 4, 2, 3],
-  [4, 2, 6, 8, 5, 3, 7, 9, 1],
-  [7, 1, 3, 9, 2, 4, 8, 5, 6],
-  [9, 6, 1, 5, 3, 7, 2, 8, 4],
-  [2, 8, 7, 4, 1, 9, 6, 3, 5],
-  [3, 4, 5, 2, 8, 6, 1, 7, 9]
-]
-```
-
-## Instructions:
-1. Write a function called SolveSudoku that takes a 9x9 grid as input and returns the solved Sudoku grid.
-2. Implement an efficient algorithm to solve the Sudoku puzzle. You can use any approach or technique you prefer.
-3. Confirm the validity of your code against the tests found in this repo.
-4. Ensure that your code is well-documented and easy to understand.
-
-## Constraints:
-- The input grid will be a 9x9 two-dimensional array of integers.
-- The input grid will have exactly one solution.
-- The input grid may contain zeros (0) to represent empty cells.
-
-## Validation: 
-To validate the correctness of the solution, you can compare the output of the program with the expected output for a set of test cases containing unsolved Sudoku puzzles.
+## Conclusion
+Thanks for taking a look! Hope to hear back from you guys soon!
