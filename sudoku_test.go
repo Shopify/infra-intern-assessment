@@ -36,3 +36,37 @@ func TestSolveSudoku(t *testing.T) {
 		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
 	}
 }
+
+func TestSolveSudokuFail(t *testing.T) {
+	// the top two rows are only missing 8, but that would put them in the same column, thus 
+	// it is impossible to solve the given sudoku puzzle.
+	input := [][]int{
+		{1, 2, 3, 4, 5, 6, 7, 0, 9},
+		{9, 6, 4, 1, 2, 7, 5, 0, 3},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+
+	expected := [][]int{
+		{1, 2, 3, 4, 5, 6, 7, 0, 9},
+		{9, 6, 4, 1, 2, 7, 5, 0, 3},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+
+	solved := SolveSudoku(input)
+
+	if !reflect.DeepEqual(solved, expected) {
+		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
+	}
+}
