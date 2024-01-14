@@ -47,6 +47,8 @@ The Go code has been deployed as an AWS Lambda function, with Amazon API Gateway
 
 ### Accessing Sudoku Solver via RESTAPI through script
 
+solve_sudoku.sh is located in AWS-Lambda dir
+
 Before executing the `solve_sudoku.sh` script, it's important to ensure that the file has the appropriate permissions set. You can update the file permissions to allow the owner to read and execute the script by using the `chmod` command. Here's how you can do it:
 
 1. Open your terminal.
