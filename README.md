@@ -1,59 +1,36 @@
-# Technical Instructions
-1. Fork this repo to your local Github account.
-2. Create a new branch to complete all your work in.
-3. Test your work using the provided tests
-4. Create a Pull Request against the Shopify Main branch when you're done and all tests are passing
+# Shopify Infrastructure Intern Assessment - Sudoku Solver 
+By Rick Zhang
 
-# Shopify Intern Assessment Production Engineering
+This Go program provides a backtracking algorithm-based Sudoku solver.
+The 'SolveSudoku' function attempts to solve a 9x9 Sudoku puzzle. 
+We assume that there exists a solution to the sudoku puzzle. When successful, 
+we will print the board out.
 
-## Description
+This program creates constraints as the board is filled and uses 
+backtracking in order to reduce the number of combinations to consider.
 
-Write a Go program that solves a given Sudoku puzzle. The program should take a 9x9 grid as input, where empty cells are represented by zeros (0), and output the solved Sudoku grid.
+Preconditions:
+1. The input grid will be a 9x9 two-dimensional array of integers.
+2. The input grid will have exactly one solution.
+3. The input grid may contain zeros (0) to represent empty cells.
 
-A Sudoku puzzle is a 9x9 grid divided into nine 3x3 sub-grids. The goal is to fill in the empty cells with numbers from 1 to 9, such that each row, each column, and each sub-grid contains all the numbers from 1 to 9 without repetition.
+Postconditions:
+1. The solved sudoku puzzle will be printed.
+2. The solved sudoku puzzle will be returned.
 
-Your program should implement an efficient algorithm to solve the Sudoku puzzle and print the solved grid to the console.
 
-### Example: Input:
-```
-[
-  [5, 3, 0, 0, 7, 0, 0, 0, 0],
-  [6, 0, 0, 1, 9, 5, 0, 0, 0],
-  [0, 9, 8, 0, 0, 0, 0, 6, 0],
-  [8, 0, 0, 0, 6, 0, 0, 0, 3],
-  [4, 0, 0, 8, 0, 3, 0, 0, 1],
-  [7, 0, 0, 0, 2, 0, 0, 0, 6],
-  [0, 6, 0, 0, 0, 0, 2, 8, 0],
-  [0, 0, 0, 4, 1, 9, 0, 0, 5],
-  [0, 0, 0, 0, 8, 0, 0, 7, 9]
-]
-```
-
-### Program Output:
-```
-[
-  [5, 3, 4, 6, 7, 8, 9, 1, 2],
-  [6, 7, 2, 1, 9, 5, 3, 4, 8],
-  [1, 9, 8, 3, 4, 2, 5, 6, 7],
-  [8, 5, 9, 7, 6, 1, 4, 2, 3],
-  [4, 2, 6, 8, 5, 3, 7, 9, 1],
-  [7, 1, 3, 9, 2, 4, 8, 5, 6],
-  [9, 6, 1, 5, 3, 7, 2, 8, 4],
-  [2, 8, 7, 4, 1, 9, 6, 3, 5],
-  [3, 4, 5, 2, 8, 6, 1, 7, 9]
-]
-```
-
-## Instructions:
-1. Write a function called SolveSudoku that takes a 9x9 grid as input and returns the solved Sudoku grid.
-2. Implement an efficient algorithm to solve the Sudoku puzzle. You can use any approach or technique you prefer.
-3. Confirm the validity of your code against the tests found in this repo.
-4. Ensure that your code is well-documented and easy to understand.
-
-## Constraints:
-- The input grid will be a 9x9 two-dimensional array of integers.
-- The input grid will have exactly one solution.
-- The input grid may contain zeros (0) to represent empty cells.
-
-## Validation: 
-To validate the correctness of the solution, you can compare the output of the program with the expected output for a set of test cases containing unsolved Sudoku puzzles.
+Here is a general overview of the algorithm:
+1. Create a counter for the numbers used in each row, column and box.
+2. Starting from (0,0), we will iterate through each row from left to right, 
+	as if we were reading the board like a book.
+3. If the cell is not already set, try placing every feasible number (a feasible number is one that does not 
+	violate the rules of sudoku) in the cell. 
+	Placing a number in an empty cell includes:
+	 - adding that number to the corresponding row, column and box counters
+	 - adding the number to the board
+4. After placing a number, go back to step 2, starting at the newly filled cell.
+5. If there are no feasible numbers, we have made a wrong move. We will backtrack.
+	Backtracking includes:
+	 - removing the number from the cell
+	 - removing the number from its corresponding row, column and box counters.
+	Now, go back to step 3 to try a different number.
