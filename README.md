@@ -14,7 +14,7 @@ A sudoku solution must satisfy **all of the following rules**:
 
 The `'0'` character indicates empty cells.
 
-## Psuedocode
+## Pseudocode
 
 Backtracking:
 Backtracking Algorithm to Solve Sudoku:
