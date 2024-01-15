@@ -1,8 +1,8 @@
 package main
 import "fmt"
 
-const size int = 9;
-const sizeGrid int = 3;
+const size int = 9; // size of board
+const sizeGrid int = 3; // size of each subgrid
 
 // check if it is valid to place num at board[row][col]
 func isValid(row int, col int, num int, board [][]int) bool{
@@ -25,52 +25,44 @@ func isValid(row int, col int, num int, board [][]int) bool{
 	return true;
 }
 
-//find first open slot, put num that works and recursively call
-//if recursive ends in no solution, get rid and find next thing to pu
-
-func SolveSudoku(board [][]int){
-	board = solve(board);
-
-	for r, _ := range board {
-		for c, _ := range board[r] {
-			fmt.Printf("%d ", board[r][c])
-		}
-		fmt.Println()
-	}
-}
-
+// recursive solution with backtracking. 
 func solve(board [][]int) [][]int {
 	for row:=0; row<size; row++ {
 		for col:=0; col<size; col++ {
+			// find unfilled spaces
 			if board[row][col] != 0 {continue}
+			// test if a digit can fill the space
 			for num:=1; num<=size; num++ {
-				if (!isValid(row, col, num, board)) {continue} //notvalid. has to have some valid as there is solution
-				board[row][col] = num;
-
+				if (!isValid(row, col, num, board)) {continue}
+				// recursively solve after filling space
+				board[row][col] = num
 				newBoard := solve(board)
+				// if no solution, backtrack and continue.
 				if newBoard == nil {
 					board[row][col] = 0
 				} else {
 					return newBoard
 				}
 			}
+			// no solution found (no valid digit)
 			return nil;
 		}
 	}
 	return board
 }
 
-func main() {
-	board := [][]int{
-		{5, 3, 0, 0, 7, 0, 0, 0, 0},
-		{6, 0, 0, 1, 9, 5, 0, 0, 0},
-		{0, 9, 8, 0, 0, 0, 0, 6, 0},
-		{8, 0, 0, 0, 6, 0, 0, 0, 3},
-		{4, 0, 0, 8, 0, 3, 0, 0, 1},
-		{7, 0, 0, 0, 2, 0, 0, 0, 6},
-		{0, 6, 0, 0, 0, 0, 2, 8, 0},
-		{0, 0, 0, 4, 1, 9, 0, 0, 5},
-		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+// Takes a 9x9 unsolved sudoku board with one solution as input in the 
+// form of a nested array with and prints the solution. Empty spaces 
+// are represented as 0s.
+func SolveSudoku(board [][]int) [][]int{
+	board = solve(board);
+
+	// print board
+	for r, _ := range board {
+		for c, _ := range board[r] {
+			fmt.Printf("%d ", board[r][c])
+		}
+		fmt.Println()
 	}
-	SolveSudoku(board)
+	return board
 }
