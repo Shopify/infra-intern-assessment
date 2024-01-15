@@ -2,7 +2,7 @@
 1. Fork this repo to your local Github account.
 2. Create a new branch to complete all your work in.
 3. Test your work using the provided tests
-4. Create a Pull Request against your local Main branch when you're done and all tests are passing
+4. Create a Pull Request against the Shopify Main branch when you're done and all tests are passing
 
 # Shopify Intern Assessment Production Engineering
 
