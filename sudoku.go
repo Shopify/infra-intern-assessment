@@ -1,5 +1,31 @@
 package main
 
+// Validate if input is a 9x9 grid
+func validateInput(sudoku [][]int) bool {
+	if len(sudoku) != 9 {
+		return false
+	}
+
+	for i := 0; i < len(sudoku); i++ {
+		if len(sudoku[i]) != 9 {
+			return false
+		}
+	}
+
+	return true
+}
+
+// Return a deep copy of the puzzle
+func copySudoku(sudoku [][]int) [][]int {
+	duplicate := make([][]int, len(sudoku))
+	for i := range sudoku {
+		duplicate[i] = make([]int, len(sudoku[i]))
+		copy(duplicate[i], sudoku[i])
+	}
+
+	return duplicate
+}
+
 // Check whether the given item indexed by itemRow and itemCol
 // is valid against the sudoku. It verifies the row, col and block
 // where the item is located.
@@ -66,7 +92,9 @@ func printSudoku(sudoku [][]int) {
 	}
 }
 
-func SolveSudoku(sudoku [][]int) [][]int {
+// Use backtracking to recursively fill the puzzle and return if
+// a valid solution is found
+func backtrack(sudoku [][]int) [][]int {
 	// Find the first empty cell
 	x, y := findEmpty(sudoku)
 
@@ -84,7 +112,7 @@ func SolveSudoku(sudoku [][]int) [][]int {
 		// Check if the in place value is valid
 		if isItemValid(sudoku, x, y) {
 			// Check if there is a solved solution
-			if SolveSudoku(sudoku) != nil {
+			if backtrack(sudoku) != nil {
 				return sudoku
 			}
 		}
@@ -95,4 +123,16 @@ func SolveSudoku(sudoku [][]int) [][]int {
 
 	// No answer is found
 	return nil
+}
+
+func SolveSudoku(sudoku [][]int) [][]int {
+	// Validate input
+	if !validateInput(sudoku) {
+		return nil
+	}
+
+	// Create a deep copy of the grid to avoid modify input
+	grid := copySudoku(sudoku)
+
+	return backtrack(grid)
 }

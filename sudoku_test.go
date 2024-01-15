@@ -88,3 +88,55 @@ func TestSolveSudokuInvalid(t *testing.T) {
 		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", nil, solved)
 	}
 }
+
+func TestSolveSudokuInputMutation(t *testing.T) {
+	input := [][]int{
+		{0, 2, 0, 6, 0, 8, 0, 0, 0},
+		{5, 8, 0, 0, 0, 9, 7, 0, 0},
+		{0, 0, 0, 0, 4, 0, 0, 0, 0},
+		{3, 7, 0, 0, 0, 0, 5, 0, 0},
+		{6, 0, 0, 0, 0, 0, 0, 0, 4},
+		{0, 0, 8, 0, 0, 0, 0, 1, 3},
+		{0, 0, 0, 0, 2, 0, 0, 0, 0},
+		{0, 0, 9, 8, 0, 0, 0, 3, 6},
+		{0, 0, 0, 3, 0, 6, 0, 9, 0},
+	}
+
+	expected := [][]int{
+		{0, 2, 0, 6, 0, 8, 0, 0, 0},
+		{5, 8, 0, 0, 0, 9, 7, 0, 0},
+		{0, 0, 0, 0, 4, 0, 0, 0, 0},
+		{3, 7, 0, 0, 0, 0, 5, 0, 0},
+		{6, 0, 0, 0, 0, 0, 0, 0, 4},
+		{0, 0, 8, 0, 0, 0, 0, 1, 3},
+		{0, 0, 0, 0, 2, 0, 0, 0, 0},
+		{0, 0, 9, 8, 0, 0, 0, 3, 6},
+		{0, 0, 0, 3, 0, 6, 0, 9, 0},
+	}
+
+	SolveSudoku(input)
+
+	if !reflect.DeepEqual(input, expected) {
+		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, input)
+	}
+}
+
+func TestSolveSudokuInvalidGrid(t *testing.T) {
+	input := [][]int{
+		{0, 2, 0, 6, 0, 8, 0, 0, 0},
+		{5, 8, 0, 0, 0, 9, 7, 0, 0},
+		{0, 0, 0, 0, 4, 0, 0, 0, 0},
+		{3, 7, 0, 0, 0, 0, 5, 0, 0},
+		{6, 0, 0, 0, 0, 0, 0, 0, 4},
+		{0, 0, 8, 0, 0, 0, 0, 1, 3},
+		{0, 0, 0, 0, 2, 0, 0, 0, 0},
+		{0, 0, 9, 8, 0, 0, 0, 3, 6},
+		{0, 0, 0, 3, 0, 6, 1, 0, 9, 0},
+	}
+
+	solved := SolveSudoku(input)
+
+	if solved != nil {
+		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", nil, input)
+	}
+}
