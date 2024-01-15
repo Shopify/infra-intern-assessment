@@ -1,5 +1,10 @@
 package main
 
+// Check whether the given item indexed by itemRow and itemCol
+// is valid against the sudoku. It verifies the row, col and block
+// where the item is located.
+//
+// Assumes sudoku is a 9x9 grid and itemRow and itemCol are valid indexes.
 func isItemValid(sudoku [][]int, itemRow int, itemCol int) bool {
 	var row, col, block [10]bool
 
@@ -36,6 +41,9 @@ func isItemValid(sudoku [][]int, itemRow int, itemCol int) bool {
 	return true
 }
 
+// Find the first empty cell in the sudoku
+//
+// Assumes sudoku is a 9x9 grid and itemRow and itemCol are valid indexes.
 func findEmpty(sudoku [][]int) (int, int) {
 	for i := 0; i < len(sudoku); i++ {
 		for j := 0; j < len(sudoku[i]); j++ {
@@ -48,24 +56,43 @@ func findEmpty(sudoku [][]int) (int, int) {
 	return -1, -1
 }
 
+// Print the 2D array
+func printSudoku(sudoku [][]int) {
+	for _, row := range sudoku {
+		for _, item := range row {
+			print(item, " ")
+		}
+		println()
+	}
+}
+
 func SolveSudoku(sudoku [][]int) [][]int {
+	// Find the first empty cell
 	x, y := findEmpty(sudoku)
 
 	if x == -1 || y == -1 {
+		// Print the complete sudoku
+		printSudoku(sudoku)
+
 		return sudoku
 	}
 
+	// Iterate through possible answers
 	for i := 1; i < 10; i++ {
 		sudoku[x][y] = i
 
+		// Check if the in place value is valid
 		if isItemValid(sudoku, x, y) {
+			// Check if there is a solved solution
 			if SolveSudoku(sudoku) != nil {
 				return sudoku
 			}
 		}
 
+		// Backtrack
 		sudoku[x][y] = 0
 	}
 
+	// No answer is found
 	return nil
 }
