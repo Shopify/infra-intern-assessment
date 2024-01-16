@@ -90,10 +90,13 @@ func doSolving(grid [][]int) bool{
 }
 
 /*
-	Function isValidInsertion checks if the given number can be inserted into the given row and column while maintaining the rules of sudoku
+	Function isValidInsertion checks if the given number can be inserted into
+	the given row and column while maintaining the rules of sudoku
 
-	Previously, after a number was inserted into the grid, isValidSudoku was called to check if the grid was still valid. This was very inefficient
-	because I was checking the entire Sudoku grid every time a number was inserted. This function checks if the number can be inserted into the
+	Previously, after a number was inserted into the grid, isValidSudoku was
+	called to check if the grid was still valid. This was very inefficient
+	because I was checking the entire Sudoku grid every time a number was
+	inserted. This function checks if the number can be inserted into the
 	with a clever usage of the parameters passed in and a smarter for loop.
 
 	Using this function seemed to improve running time as shown below:
