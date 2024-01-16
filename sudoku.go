@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 /*
 input: board yet to be solved
 output: solved board
@@ -7,6 +9,7 @@ solves the input board (assuming that there is a solution)
 */
 func SolveSudoku(board [][]int) [][]int {
 	solveHelper(&board)
+	fmt.Println(board)
 	return board
 }
 
