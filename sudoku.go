@@ -63,6 +63,7 @@ func isValidSudoku(grid [][]int) bool {
 	}
 	return true
 }
+
 /*
 	Function doSolving solves the sudoku puzzle using backtracking
 	Returns true if the puzzle is solved, calls itself recurisvely
@@ -73,11 +74,13 @@ func doSolving(grid [][]int) bool{
 		for j := 0; j < len(grid); j++ {
 			if grid[i][j] == 0 {
 				for num := 1; num <= 9; num++ {
-					grid[i][j] = num
-					if isValidSudoku(grid) && doSolving(grid) {
-						return true
+					if isValidInsertion(grid, i, j, num) {
+						grid[i][j] = num
+						if doSolving(grid) {
+							return true
+						}
+						grid[i][j] = 0
 					}
-					grid[i][j] = 0
 				}
 				return false
 			}
@@ -87,10 +90,40 @@ func doSolving(grid [][]int) bool{
 }
 
 /*
+	Function isValidInsertion checks if the given number can be inserted into the given row and column while maintaining the rules of sudoku
+
+	Previously, after a number was inserted into the grid, isValidSudoku was called to check if the grid was still valid. This was very inefficient
+	because I was checking the entire Sudoku grid every time a number was inserted. This function checks if the number can be inserted into the
+	with a clever usage of the parameters passed in and a smarter for loop.
+
+	Using this function seemed to improve running time as shown below:
+	Before:
+	PASS
+	ok  	sudoku	0.247s
+
+	After:
+	PASS
+	ok  	sudoku	0.104s
+
+	Returns true if the proposed insertion is valid, false otherwise
+*/
+func isValidInsertion(grid [][]int, row int, col int, c int) bool {
+	smallGridRow := (row / 3) * 3
+	smallGridCol := (col / 3) * 3
+
+	for i := 0; i < 9; i++ {
+		if grid[i][col] == c || grid[row][i] == c || grid[smallGridRow + i / 3][smallGridCol + i % 3] == c {
+			return false
+		}
+	}
+	return true
+
+}
+
+/*
 	Function SolveSudoku solves the sudoku puzzle by calling doSolving
 	Returns the original grid that was passed in since its been modified
 */
-
 func SolveSudoku(grid [][]int) [][]int {
 	doSolving(grid)
 	return grid
