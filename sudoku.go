@@ -1,10 +1,17 @@
 package main
 
 // SolveSudoku solves a provide sudoku grid
+// Precondition: given grid has is valid and has only one solution
 // Input grid([][] int) of size 9 * 9 is guaranteed having only one solution
 // Returns solution in a grid([][] int) of size 9 * 9
 func SolveSudoku(input [][]int) [][]int {
 	return nil
+}
+
+// isZero checks if the value of a cell is 0 or not (if current cell is empty)
+// Return true if the cell is 0, false otherwise
+func isZero(grid [][]int, row int, col int) bool {
+	return grid[row][col] == 0
 }
 
 // validate checks if the given value is a valid input in given grid
@@ -24,7 +31,7 @@ func validate(value int, grid [][]int, row int, col int) bool {
 	blockCol := col - col%blockConv
 
 	/* grid[blockRow][blockCol] represent the actual indices of the top left cell of a 3*3 block
-	show as below:
+	shown as below:
 		[X][ ][ ]
 		[ ][ ][ ]
 		[ ][ ][ ]
