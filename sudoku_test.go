@@ -30,9 +30,17 @@ func TestSolveSudoku(t *testing.T) {
 		{3, 4, 5, 2, 8, 6, 1, 7, 9},
 	}
 
-	solved := SolveSudoku(input)
+	solved := make([][]int, len(input))
+	for i := range input {
+		solved[i] = make([]int, len(input[i]))
+		copy(solved[i], input[i])
+	}
 
-	if !reflect.DeepEqual(solved, expected) {
-		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
+	if SolveSudoku(solved) {
+		if !reflect.DeepEqual(solved, expected) {
+			t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
+		}
+	} else {
+		t.Error("Failed to solve Sudoku puzzle.")
 	}
 }
