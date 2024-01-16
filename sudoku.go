@@ -6,3 +6,7 @@ package main
 func SolveSudoku(input [][]int) [][]int {
 	return nil
 }
+
+func validate(value int, grid [][]int, row int, col int) bool {
+
+}
