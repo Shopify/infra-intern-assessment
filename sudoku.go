@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 // Scans board to determine if assigning currNum to position board[row][col] will conflict with an existing assignment.
 func isSafeToAssignCurrNum(board [][]int, row int, col int, currNum int) bool {
@@ -86,8 +89,16 @@ func solveBoard(board [][]int, n int) bool {
 	return false
 }
 
-// SolveSudoku is the master function that calls solveBoard to solve the sudoku puzzle, populating 'board' with the correct values.
+// SolveSudoku is the master function that calls solveBoard to solve the sudoku puzzle, populating 'board' with
+// the correct values. The solved board is then printed out to the console.
 func SolveSudoku(board [][]int) [][]int {
 	solveBoard(board, len(board))
+
+	fmt.Println("Solved Sudoku Board Output:")
+	for i := 0; i < len(board); i++ {
+		fmt.Printf("%v,\n", board[i])
+	}
+	//fmt.Println(board)
+	//printBoard(board, len(board))
 	return board
 }
