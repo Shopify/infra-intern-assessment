@@ -12,18 +12,18 @@ func SolveSudoku(input [][]int) [][]int {
 func backtracking(grid *[][]int, row int, col int) bool {
 	rowMax, colMax := len(*grid), len((*grid)[0])
 
-	// case#1: where the end of a column is reached, go the start of next row
-	if col == colMax {
-		backtracking(grid, row+1, 0)
-	}
-
 	// case#2: base case,
 	if row == rowMax {
 		return true
 	}
 
+	// case#1: where the end of a column is reached, go the start of next row
+	if col == colMax {
+		return backtracking(grid, row+1, 0)
+	}
+
 	// if it's a non zero cell, proceed to next cell
-	if !isZero(grid, row, col) {
+	if (*grid)[row][col] != 0 {
 		return backtracking(grid, row, col+1)
 	}
 
