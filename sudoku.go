@@ -5,6 +5,28 @@ I wanted to challenge myself with something other than backtracking :P.
 Implementation of the algorithm is influenced by Rhyd Lewis' paper:
 (https://link.springer.com/article/10.1007/s10732-007-9012-8)
 
+Brief overview:
+1. simulated annealing is a probailistic optimization algorithm that makes random guesses to reach the optimal board state
+2. it essentially "minimizes" a cost function, which we define to be the number of errors
+3. it iteratively tries to reduce the cost function until there are no more errors
+
+How it works:
+1. fill each 3x3 grid with valid unique values
+2. swap two random values in each grid
+3. if cost is minimized, keep state with a given probablity
+4. repeat this process until convergence (solution found)
+5. if it is stuck, reset everything from step 1
+
+** There are more nuanced steps, such as controlling the probility in step 3 with "temperature",
+** and iterative cost values changes, etc
+
+Why?
+1. Can be much faster for very difficult sudoku problems (with proper tuning)
+2. Scales better for n by n sudoku problems
+3. Works with extra constraints (diagonals, etc)
+4. Able to arrive at "semi-solutions" for impossible puzzles
+5. Constant memory usage no matter the puzzle complexity (no recursion!)
+6. its cool!
 */
 
 package main
@@ -23,9 +45,9 @@ func SolveSudoku(board [][]int) [][]int {
 	newBoard := make([][]int, len(board))
 	decreaseFactor := 0.99
 
+	// returns semi-solution after trying 10 times
 	for numTries := 0; !solutionFound && numTries < 10; numTries++ {
 		stuckCount := 0
-
 		newBoard = make([][]int, len(board))
 		for i := range board {
 			newBoard[i] = make([]int, len(board[i]))
@@ -53,6 +75,7 @@ func SolveSudoku(board [][]int) [][]int {
 					return newBoard
 				}
 			}
+
 			sigma *= decreaseFactor
 			if cost <= 0 {
 				solutionFound = true
@@ -86,6 +109,7 @@ func CalculateCost(board [][]int) int {
 }
 
 // Helper function to calculate the errors in the (col, row) cross
+// works by counting the number of repated numbers in the cross pattern
 func CalculateNumberOfErrorsRowColumn(row int, column int, sudoku [][]int) int {
 	rowElem := make(map[int]int)
 	colElem := make(map[int]int)
@@ -109,6 +133,58 @@ func CalculateNumberOfErrorsRowColumn(row int, column int, sudoku [][]int) int {
 		}
 	}
 	return numberOfErrors
+}
+
+// Chooses new board state and returns the difference in cost of the new state.
+// This picks two random squares in a random block and swaps them.
+// New board state is only accepted if the difference reaches a certain threshold
+func ChooseNewState(board [][]int, ogBoard [][]int, blocks [][][2]int, s float64) float64 {
+	block := blocks[rand.Intn(len(blocks))]
+
+	flip := PickTwoRandomBoxInBlock(ogBoard, block)
+
+	currentCost := CalculateNumberOfErrorsRowColumn(flip[0][1], flip[0][0], board) +
+		CalculateNumberOfErrorsRowColumn(flip[1][1], flip[1][0], board)
+	FlipBoxes(board, flip)
+	newCost := CalculateNumberOfErrorsRowColumn(flip[0][1], flip[0][0], board) +
+		CalculateNumberOfErrorsRowColumn(flip[1][1], flip[1][0], board)
+
+	costDifference := float64(newCost - currentCost)
+	rho := math.Exp(-costDifference / s)
+
+	if rand.Float64() < rho {
+		return costDifference
+	} else {
+		FlipBoxes(board, flip)
+		return 0
+	}
+}
+
+// Calculate initial sigma value based on the cost standard deviation of a series of 10 random flips.
+func CalcInitSigma(board [][]int, ogBoard [][]int, blocks [][][2]int) float64 {
+	list := []int{}
+	for i := 0; i < 9; i++ {
+		block := blocks[rand.Intn(len(blocks))]
+		flip := PickTwoRandomBoxInBlock(ogBoard, block)
+		FlipBoxes(board, flip)
+		list = append(list, CalculateCost(board))
+		FlipBoxes(board, flip)
+	}
+
+	// calculating sd
+	var sum, mean, sd float64
+	for _, val := range list {
+		sum += float64(val)
+	}
+	mean = sum / float64(len(list))
+
+	for _, val := range list {
+		sd += math.Pow(float64(val)-mean, 2)
+	}
+
+	sd = math.Sqrt(sd / float64(len(list)))
+
+	return sd
 }
 
 // Creates a slice of blocks, where each block holds 9 pairs of coordinates to
@@ -164,44 +240,6 @@ func RandomlyFill3x3Blocks(board [][]int, blocks [][][2]int) {
 	}
 }
 
-// Picks two random **different** boxes in a block, each box is a coordinate pair (col, row)
-func PickTwoRandomBoxInBlock(sudoku [][]int, block [][2]int) [2][2]int {
-	for true {
-		firstBox := block[rand.Intn(len(block))]
-		secondBox := block[rand.Intn(len(block))]
-
-		if firstBox != secondBox && sudoku[firstBox[1]][firstBox[0]] == 0 && sudoku[secondBox[1]][secondBox[0]] == 0 {
-			return [2][2]int{firstBox, secondBox}
-		}
-	}
-	return [2][2]int{}
-}
-
-// Swaps the values of two boxes in place on a board
-func FlipBoxes(board [][]int, blocks [2][2]int) {
-	board[blocks[0][1]][blocks[0][0]], board[blocks[1][1]][blocks[1][0]] = board[blocks[1][1]][blocks[1][0]], board[blocks[0][1]][blocks[0][0]]
-}
-
-func ChooseNewState(board [][]int, ogBoard [][]int, blocks [][][2]int, s float64) float64 {
-	block := blocks[rand.Intn(len(blocks))]
-
-	flip := PickTwoRandomBoxInBlock(ogBoard, block)
-
-	currentCost := CalculateNumberOfErrorsRowColumn(flip[0][1], flip[0][0], board) + CalculateNumberOfErrorsRowColumn(flip[1][1], flip[1][0], board)
-	FlipBoxes(board, flip)
-	newCost := CalculateNumberOfErrorsRowColumn(flip[0][1], flip[0][0], board) + CalculateNumberOfErrorsRowColumn(flip[1][1], flip[1][0], board)
-
-	costDifference := float64(newCost - currentCost)
-	rho := math.Exp(-costDifference / s)
-
-	if rand.Float64() < rho {
-		return costDifference
-	} else {
-		FlipBoxes(board, flip)
-		return 0
-	}
-}
-
 // Calculates number of iteration to run annealing process per cycle
 func CalcNumberOfIters(ogBoard [][]int) int {
 	iter := 0
@@ -216,30 +254,22 @@ func CalcNumberOfIters(ogBoard [][]int) int {
 	return iter
 }
 
-// Calculate initial sigma value based on the cost standard deviation of flips.
-func CalcInitSigma(board [][]int, ogBoard [][]int, blocks [][][2]int) float64 {
-	list := []int{}
-	for i := 0; i < 9; i++ {
-		block := blocks[rand.Intn(len(blocks))]
-		flip := PickTwoRandomBoxInBlock(ogBoard, block)
-		FlipBoxes(board, flip)
-		list = append(list, CalculateCost(board))
-		FlipBoxes(board, flip)
+// Picks two random different boxes in a block, each box is a coordinate pair (col, row)
+func PickTwoRandomBoxInBlock(ogBoard [][]int, block [][2]int) [2][2]int {
+	for true {
+		firstBox := block[rand.Intn(len(block))]
+		secondBox := block[rand.Intn(len(block))]
+
+		if firstBox != secondBox && ogBoard[firstBox[1]][firstBox[0]] == 0 && ogBoard[secondBox[1]][secondBox[0]] == 0 {
+			return [2][2]int{firstBox, secondBox}
+		}
 	}
+	return [2][2]int{}
+}
 
-	var sum, mean, sd float64
-	for _, val := range list {
-		sum += float64(val)
-	}
-	mean = sum / float64(len(list))
-
-	for _, val := range list {
-		sd += math.Pow(float64(val)-mean, 2)
-	}
-
-	sd = math.Sqrt(sd / float64(len(list)))
-
-	return sd
+// Swaps the values of two boxes in place on a board
+func FlipBoxes(board [][]int, blocks [2][2]int) {
+	board[blocks[0][1]][blocks[0][0]], board[blocks[1][1]][blocks[1][0]] = board[blocks[1][1]][blocks[1][0]], board[blocks[0][1]][blocks[0][0]]
 }
 
 /********** START: Utility Helper Functions   ************/
@@ -274,6 +304,7 @@ func main() {
 	// 	{0, 0, 0, 4, 1, 9, 0, 0, 5},
 	// 	{0, 0, 0, 0, 8, 0, 0, 7, 9},
 	// }
+	// harder puzzle
 	input := [][]int{
 		{0, 0, 9, 0, 0, 5, 0, 2, 0},
 		{2, 4, 0, 7, 0, 0, 0, 0, 1},
