@@ -45,12 +45,6 @@ func backtracking(grid *[][]int, row int, col int) bool {
 	return false
 }
 
-// isZero checks if the value of a cell is 0 or not (if current cell is empty)
-// Return true if the cell is 0, false otherwise
-func isZero(grid *[][]int, row int, col int) bool {
-	return (*grid)[row][col] == 0
-}
-
 // validate checks if the given value is a valid input in given grid
 // row, col are the coordinates of the value in the grid
 // Returns true if value is valid, false otherwise
