@@ -25,17 +25,17 @@ func validate(value int, grid [][]int, row int, col int) bool {
 		}
 	}
 
-	// blockConv is the conversion factor that helps finding which 3*3 block the value is located
-	const blockConv int = 3
-	blockRow := row - row%blockConv
-	blockCol := col - col%blockConv
-
+	// blockConv is the conversion factor that helps to find which 3*3 block the value is located
 	/* grid[blockRow][blockCol] represent the actual indices of the top left cell of a 3*3 block
 	shown as below:
 		[X][ ][ ]
 		[ ][ ][ ]
 		[ ][ ][ ]
 	*/
+	const blockConv int = 3
+	blockRow := row - row%blockConv // actual row index
+	blockCol := col - col%blockConv // actual column index
+
 	// check if value is duplicated in the 3*3 block
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
