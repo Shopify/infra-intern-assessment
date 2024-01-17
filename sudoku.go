@@ -8,19 +8,23 @@ func SolveSudoku(input [][]int) [][]int {
 	return nil
 }
 
+func backtracking(input *[][]int) {
+
+}
+
 // isZero checks if the value of a cell is 0 or not (if current cell is empty)
 // Return true if the cell is 0, false otherwise
-func isZero(grid [][]int, row int, col int) bool {
-	return grid[row][col] == 0
+func isZero(grid *[][]int, row int, col int) bool {
+	return (*grid)[row][col] == 0
 }
 
 // validate checks if the given value is a valid input in given grid
 // row, col are the coordinates of the value in the grid
 // Returns true if value is valid, false otherwise
-func validate(value int, grid [][]int, row int, col int) bool {
+func validate(value int, grid *[][]int, row int, col int) bool {
 	// check if value is duplicated in current row and column
 	for i := 0; i < 9; i++ {
-		if grid[i][col] == value || grid[row][i] == value {
+		if (*grid)[i][col] == value || (*grid)[row][i] == value {
 			return false
 		}
 	}
@@ -39,7 +43,7 @@ func validate(value int, grid [][]int, row int, col int) bool {
 	// check if value is duplicated in the 3*3 block
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if grid[blockRow+i][blockCol+j] == value {
+			if (*grid)[blockRow+i][blockCol+j] == value {
 				return false
 			}
 		}
