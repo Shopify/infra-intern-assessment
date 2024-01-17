@@ -5,11 +5,44 @@ package main
 // Input grid([][] int) of size 9 * 9 is guaranteed having only one solution
 // Returns solution in a grid([][] int) of size 9 * 9
 func SolveSudoku(input [][]int) [][]int {
-	return nil
+	backtracking(&input, 0, 0)
+	return input
 }
 
-func backtracking(input *[][]int) {
+func backtracking(grid *[][]int, row int, col int) bool {
+	rowMax, colMax := len(*grid), len((*grid)[0])
 
+	// case#1: where the end of a column is reached, go the start of next row
+	if col == colMax {
+		backtracking(grid, row+1, 0)
+	}
+
+	// case#2: base case,
+	if row == rowMax {
+		return true
+	}
+
+	// if it's a non zero cell, proceed to next cell
+	if !isZero(grid, row, col) {
+		return backtracking(grid, row, col+1)
+	}
+
+	for value := 1; value <= 9; value++ {
+		// if value is not valid for current cell, try next value
+		if !validate(value, grid, row, col) {
+			continue
+		}
+
+		(*grid)[row][col] = value // assign validated value
+
+		if backtracking(grid, row, col+1) {
+			return true
+		}
+
+		(*grid)[row][col] = 0
+	}
+
+	return false
 }
 
 // isZero checks if the value of a cell is 0 or not (if current cell is empty)
