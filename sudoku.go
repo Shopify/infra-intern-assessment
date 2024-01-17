@@ -11,6 +11,8 @@ const EMPTY_VALUE = 0
 var ErrorInvalidMatrix = errors.New("invalid matrix length")
 var ErrorUnsolvableMatrix = errors.New("unsolvable matrix")
 
+// SolveSudoku recursively solves the matrix input and returns the solved matrix with
+// any errors that may have occured.
 func SolveSudoku(matrix [][]int) ([][]int, error) {
 	if len(matrix) != MATRIX_N {
 		return matrix, ErrorInvalidMatrix
@@ -35,6 +37,7 @@ type placement struct {
 	val int
 }
 
+// We use bactracking in order to exhaust all possible values (brute force).
 func solve(matrix [][]int) ([][]int, bool) {
 	for i := 0; i < MATRIX_N; i++ {
 		for j := 0; j < MATRIX_N; j++ {
