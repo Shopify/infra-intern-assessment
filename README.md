@@ -1,4 +1,4 @@
-# Sudoko Solver
+# Sudoko Solver 🧩
 
 Given the sudoku puzzle's presentation as a 9x9 grid with empty cells denoted by zeros, this program fills the grid in line with the following constraints: 
 
