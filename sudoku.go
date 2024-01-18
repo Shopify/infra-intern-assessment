@@ -1,6 +1,5 @@
 package main
 
-// this is just the setup, will construct and debug from here
 func SolveSudoku(puzzle [][]int) [][]int {
 	solve(puzzle)
 	return puzzle
@@ -89,6 +88,7 @@ func canPlaceN(p [][]int, i, j, n int) bool {
 }
 
 func divmod(numerator, denominator int) (int, int) {
+	// just a simple divmod function for readability
 	return numerator / denominator, numerator % denominator 
 }
 
