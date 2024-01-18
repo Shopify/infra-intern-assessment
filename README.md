@@ -1,5 +1,7 @@
 # Sudoko Solver 🧩
 
+Hi there! I'm Isabella Rossi, an Engineering student at the University of Waterloo. Here is my solution to the Infrastructure Intern Assessment. 
+
 Given the sudoku puzzle's presentation as a 9x9 grid with empty cells denoted by zeros, this program fills the grid in line with the following constraints: 
 
 - The input grid will be a 9x9 two-dimensional array of integers.
