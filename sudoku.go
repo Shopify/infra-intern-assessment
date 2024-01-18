@@ -120,12 +120,16 @@ func solve(board [][]int) bool {
 }
 
 // SolveSudoku just wraps the solve function, as by it's recursive/backtracking nature
-// its easier to have a helper function that copies the board to apply the function's changes;
-// the solved board is returned as the same type as the board passed into it for the purposes of testing.
+// its easier to have a helper function that applies the changes. If there is no solution,
+// we return nil.
 func SolveSudoku(board [][]int) [][]int {
 
-	// copy board, make changes to solve, return solved board.
-	solvedBoard := board
-	solve(solvedBoard)
-	return solvedBoard
+	// if a solution exists, return the solved board
+	if solve(board) {
+		return board
+	}
+
+	// otherwise, nil
+	return nil
+
 }
