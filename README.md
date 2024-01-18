@@ -1,59 +1,44 @@
-# Technical Instructions
-1. Fork this repo to your local Github account.
-2. Create a new branch to complete all your work in.
-3. Test your work using the provided tests
-4. Create a Pull Request against the Shopify Main branch when you're done and all tests are passing
+# Sudoko Solver
 
-# Shopify Intern Assessment Production Engineering
+Given the sudoku puzzle's presentation as a 9x9 grid with empty cells denoted by zeros, this program fills the grid in line with the following constraints: 
 
-## Description
-
-Write a Go program that solves a given Sudoku puzzle. The program should take a 9x9 grid as input, where empty cells are represented by zeros (0), and output the solved Sudoku grid.
-
-A Sudoku puzzle is a 9x9 grid divided into nine 3x3 sub-grids. The goal is to fill in the empty cells with numbers from 1 to 9, such that each row, each column, and each sub-grid contains all the numbers from 1 to 9 without repetition.
-
-Your program should implement an efficient algorithm to solve the Sudoku puzzle and print the solved grid to the console.
-
-### Example: Input:
-```
-[
-  [5, 3, 0, 0, 7, 0, 0, 0, 0],
-  [6, 0, 0, 1, 9, 5, 0, 0, 0],
-  [0, 9, 8, 0, 0, 0, 0, 6, 0],
-  [8, 0, 0, 0, 6, 0, 0, 0, 3],
-  [4, 0, 0, 8, 0, 3, 0, 0, 1],
-  [7, 0, 0, 0, 2, 0, 0, 0, 6],
-  [0, 6, 0, 0, 0, 0, 2, 8, 0],
-  [0, 0, 0, 4, 1, 9, 0, 0, 5],
-  [0, 0, 0, 0, 8, 0, 0, 7, 9]
-]
-```
-
-### Program Output:
-```
-[
-  [5, 3, 4, 6, 7, 8, 9, 1, 2],
-  [6, 7, 2, 1, 9, 5, 3, 4, 8],
-  [1, 9, 8, 3, 4, 2, 5, 6, 7],
-  [8, 5, 9, 7, 6, 1, 4, 2, 3],
-  [4, 2, 6, 8, 5, 3, 7, 9, 1],
-  [7, 1, 3, 9, 2, 4, 8, 5, 6],
-  [9, 6, 1, 5, 3, 7, 2, 8, 4],
-  [2, 8, 7, 4, 1, 9, 6, 3, 5],
-  [3, 4, 5, 2, 8, 6, 1, 7, 9]
-]
-```
-
-## Instructions:
-1. Write a function called SolveSudoku that takes a 9x9 grid as input and returns the solved Sudoku grid.
-2. Implement an efficient algorithm to solve the Sudoku puzzle. You can use any approach or technique you prefer.
-3. Confirm the validity of your code against the tests found in this repo.
-4. Ensure that your code is well-documented and easy to understand.
-
-## Constraints:
 - The input grid will be a 9x9 two-dimensional array of integers.
 - The input grid will have exactly one solution.
 - The input grid may contain zeros (0) to represent empty cells.
 
-## Validation: 
-To validate the correctness of the solution, you can compare the output of the program with the expected output for a set of test cases containing unsolved Sudoku puzzles.
+# Implementation
+
+This Sudoku Solver uses backtracking to solve the puzzle and print the solved grid to the console. 
+
+This is accomplished through the following functions: 
+
+### `isInCol(grid [][]int, col, num int) bool`
+
+- Checks if a given number `num` is present in the current column `col` of the Sudoku grid.
+- Returns `true` if `num` is present in the column, `false` otherwise.
+
+### `isInRow(grid [][]int, row, num int) bool`
+
+- Checks if a given number `num` is present in the current row `row` of the Sudoku grid.
+- Returns `true` if `num` is present in the row, `false` otherwise.
+
+### `isInSubgrid(grid [][]int, subgridStartRow, subgridStartCol, num int) bool`
+
+- Checks if a given number `num` is present in the 3x3 subgrid starting at position `(subgridStartRow, subgridStartCol)` of the Sudoku grid.
+- Returns `true` if `num` is present in the subgrid, `false` otherwise.
+
+### `isValid(grid [][]int, row int, col int, num int) bool`
+
+- Checks if placing a given number `num` in the specified cell `(row, col)` of the Sudoku grid is valid according to Sudoku rules.
+- Returns `true` if placing `num` in the cell is valid, `false` otherwise.
+
+### `solveSudokuHelper(grid [][]int, row int, col int) bool`
+
+- A recursive helper function that uses backtracking to solve the Sudoku puzzle.
+- Returns `true` if the puzzle is solved, `false` otherwise.
+
+### `SolveSudoku(grid [][]int) [][]int`
+
+- The main function to solve the Sudoku puzzle. It initializes the solving process using the `solveSudokuHelper` function.
+- Returns the solved Sudoku grid, or `nil` if no solution is found.
+
