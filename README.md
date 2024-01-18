@@ -42,3 +42,5 @@ This is accomplished through the following functions:
 - The main function to solve the Sudoku puzzle. It initializes the solving process using the `solveSudokuHelper` function.
 - Returns the solved Sudoku grid, or `nil` if no solution is found.
 
+# Conclusion
+Thank you for your consideration and I hope to hear from you soon!
