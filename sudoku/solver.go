@@ -26,13 +26,16 @@ func (s *SudokuSolver) isValid(board [][]int, row, col int, num int) bool {
 func (s *SudokuSolver) solve(board [][]int, row, col int) bool {
 	width := 9
 
+	// if whole board finished, return true
 	if row == width {
 		return true
 	}
+	// if at end of row, go to the next one
 	if col == width {
 		return s.solve(board, row+1, 0)
 	}
 
+	// only solve if its empty slot
 	if board[row][col] == 0 {
 		for i := 1; i <= 9; i++ {
 			if s.isValid(board, row, col, i) { // check if i is a possibility for board[row][col]
