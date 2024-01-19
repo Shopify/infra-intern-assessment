@@ -4,5 +4,10 @@ import "sudoku/sudoku"
 
 func SolveSudoku(board [][]int) [][]int {
 	s := sudoku.NewSudokuSolver(board)
-	return s.Solve()
+	solvedBoard, err := s.Solve()
+	if err != nil {
+		return nil
+	}
+
+	return solvedBoard
 }

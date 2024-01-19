@@ -1,5 +1,9 @@
 package sudoku
 
+import "github.com/pkg/errors"
+
+const boardSize = 9
+
 // inherits from Solver
 type SudokuSolver struct {
 	board [][]int
@@ -14,7 +18,7 @@ func NewSudokuSolver(board [][]int) *SudokuSolver {
 
 // checks if num is input into board[row][col], will the sudoku board be valid
 func (s *SudokuSolver) isValid(board [][]int, row, col int, num int) bool {
-	for i := 0; i < 9; i++ {
+	for i := 0; i < boardSize; i++ {
 		if board[i][col] == num || board[row][i] == num || board[3*(row/3)+i/3][3*(col/3)+i%3] == num {
 			return false
 		}
@@ -24,14 +28,12 @@ func (s *SudokuSolver) isValid(board [][]int, row, col int, num int) bool {
 
 // solves the board
 func (s *SudokuSolver) solve(board [][]int, row, col int) bool {
-	width := 9
-
 	// if whole board finished, return true
-	if row == width {
+	if row == boardSize {
 		return true
 	}
 	// if at end of row, go to the next one
-	if col == width {
+	if col == boardSize {
 		return s.solve(board, row+1, 0)
 	}
 
@@ -68,13 +70,31 @@ func (s *SudokuSolver) deepCopy(matrix [][]int) [][]int {
 	return copiedMatrix
 }
 
+// isValidBoardSize checks if the board has a valid size
+func isValidBoardSize(board [][]int) bool {
+	if len(board) != boardSize {
+		return false
+	}
+	for _, row := range board {
+		if len(row) != boardSize {
+			return false
+		}
+	}
+	return true
+}
+
 // Solve the board
-func (s *SudokuSolver) Solve() [][]int {
+func (s *SudokuSolver) Solve() ([][]int, error) {
+	// Check for invalid boards
 	if s.board == nil {
-		return nil // TODO: add errors wrap
+		return nil, errors.New("board is nil")
+	}
+
+	if !isValidBoardSize(s.board) {
+		return nil, errors.New("invalid board size")
 	}
 
 	solved := s.deepCopy(s.board)
 	s.solve(solved, 0, 0)
-	return solved
+	return solved, nil
 }
