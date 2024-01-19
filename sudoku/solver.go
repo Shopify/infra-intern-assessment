@@ -4,7 +4,7 @@ import "github.com/pkg/errors"
 
 const boardSize = 9
 
-// inherits from Solver
+// SudokuSolver inherits from Solver
 type SudokuSolver struct {
 	board [][]int
 }
