@@ -53,7 +53,9 @@ func (s *SudokuSolver) reset() {
 	s.rows = [9]uint{}
 	s.cols = [9]uint{}
 	s.block = [3][3]uint{}
-	s.empty = nil
+
+	// Clear slice and reuse underlying array.
+	s.empty = s.empty[:0]
 }
 
 func (s *SudokuSolver) init(board Sudoku) {
