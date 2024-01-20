@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// DefaultSolver is the default SudokuSolver used for solving Sudoku puzzles.
 var DefaultSolver = &SudokuSolver{}
 
 // SolveSudoku solves the given sudoku board with DefaultSolver.
@@ -18,6 +19,8 @@ type SudokuSolver struct {
 	empty      [][2]int
 }
 
+// Solve is a method of SudokuSolver that solves the Sudoku puzzle using
+// a backtracking algorithm.
 func (s *SudokuSolver) Solve(board Sudoku) Sudoku {
 	s.reset()
 	s.init(board)
@@ -25,6 +28,7 @@ func (s *SudokuSolver) Solve(board Sudoku) Sudoku {
 	return board
 }
 
+// dfs is a recursive depth-first search function for solving Sudoku.
 func (s *SudokuSolver) dfs(board Sudoku, n int) bool {
 	if n == len(s.empty) {
 		return true
@@ -64,6 +68,8 @@ func (s *SudokuSolver) init(board Sudoku) {
 	}
 }
 
+// flip updates the state of the SudokuSolver based on the
+// given position (i, j) and value (n).
 func (s *SudokuSolver) flip(i, j, n int) {
 	s.rows[i] ^= 1 << n
 	s.cols[j] ^= 1 << n
@@ -73,6 +79,8 @@ func (s *SudokuSolver) flip(i, j, n int) {
 // Sudoku type represents a 2D array to hold the Sudoku board.
 type Sudoku [][]int
 
+// String converts the Sudoku board to a beautified string
+// for easy printing.
 func (s Sudoku) String() string {
 	sb := strings.Builder{}
 	sb.WriteString("[\n")
