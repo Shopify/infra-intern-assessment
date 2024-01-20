@@ -5,6 +5,14 @@ import (
 	"testing"
 )
 
+// Helper function to assert Sudoku solutions
+func assertSudokuSolution(t *testing.T, input, expected [][]int) {
+	solved := SolveSudoku(input)
+
+	if !reflect.DeepEqual(solved, expected) {
+		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
+	}
+}
 func TestSolveSudoku(t *testing.T) {
 	input := [][]int{
 		{5, 3, 0, 0, 7, 0, 0, 0, 0},
@@ -29,10 +37,24 @@ func TestSolveSudoku(t *testing.T) {
 		{2, 8, 7, 4, 1, 9, 6, 3, 5},
 		{3, 4, 5, 2, 8, 6, 1, 7, 9},
 	}
+	assertSudokuSolution(t, input, expected)
+}
 
-	solved := SolveSudoku(input)
-
-	if !reflect.DeepEqual(solved, expected) {
-		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
+func TestSolveSudoku_UnsolvableGrid(t *testing.T) {
+	// An unsolvable Sudoku grid
+	input := [][]int{
+		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+		{0, 0, 0, 0, 8, 0, 0, 7, 8}, // Invalid value (8 is repeated in the last row)
 	}
+
+	expected := [][]int{} // Empty grid, as there is no solution for an unsolvable grid
+
+	assertSudokuSolution(t, input, expected)
 }
