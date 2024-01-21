@@ -2,29 +2,17 @@ package main
 
 import "fmt"
 
-// REQUIRES: Existing board is valid
-// 			 0 <= row, col <= 8; board[row][col] is unfilled
+// REQUIRES: memoRow, memoCol, memoGrid accurately reflect the current board
+// 			 0 <= row, col <= 8
+//			 memo corresponding to [row][col] is currently not updated (false)
 //			 1 <= num <= 9
 // MODIFIES: N/A
 // EFFECTS: Determines if placing num at board[row][col] is valid
-func Promising(board [][]int, row int, col int, num int) bool {
-	// Check all cells on the same row or same column as the cell at [row][col]
-	for i := 0; i < 9; i++ {
-		if board[row][i] == num || board[i][col] == num {
-			return false
-		}
-	}
-	// Check all cells in the same 3 by 3 grid as the cell at [row][col]
-	startRowIdx := (row / 3) * 3
-	startColIdx := (col / 3) * 3
-	for i := startRowIdx; i < startRowIdx + 3; i++ {
-		for j := startColIdx; j < startColIdx + 3; j++ {
-			if board[i][j] == num {
-				return false
-			}
-		}
-	}
-	return true
+func Promising(memoRow [9][10]bool, memoCol [9][10]bool,
+			   memoGrid [3][3][10]bool,row int, col int, num int) bool {
+	// Return true iff num does not exist in the row, column, or grid
+	// which cell [row][col] corresponds to
+	return !memoRow[row][num] && !memoCol[col][num] && !memoGrid[row/3][col/3][num]
 }
 
 // REQUIRES: Existing board is valid
@@ -53,10 +41,12 @@ func FindNextUnfilled(board [][]int, curRow int, curCol int) (int, int) {
 }
 
 // REQUIRES: board is a 2d array representing a sudoku with exactly 1 solution
+//			 memoRow, memoCol, memoGrid accurately reflect the current board
 //			 0 <= row, col <= 8
 // MODIFIES: board
 // EFFECTS: Performs a (recursive) backtracking algorithm to solve the sudoku
-func SolveSudokuHelper(board [][]int, row int, col int) bool {
+func SolveSudokuHelper(board [][]int, memoRow [9][10]bool, memoCol [9][10]bool,
+					   memoGrid [3][3][10]bool, row int, col int) bool {
 	// If sudoku is solved, i.e. all cells have been filled
 	if row < 0 {
 		return true
@@ -65,18 +55,24 @@ func SolveSudokuHelper(board [][]int, row int, col int) bool {
 	// Try to place number 1 through 9 at current [rol][col]
 	for num := 1; num <= 9; num++ {
 		// Check constraint: If placing this number does not violate any rules of sudoku
-		if Promising(board, row, col, num) {
-			// Place number
+		if Promising(memoRow, memoCol, memoGrid, row, col, num) {
+			// Place number & update memos
 			board[row][col] = num
+			memoRow[row][num] = true
+			memoCol[col][num] = true
+			memoGrid[row/3][col/3][num] = true
 			// Recursion with the next unfilled cell on the board
 			nextRow, nextCol := FindNextUnfilled(board, row, col)
 			// If recursive function call returned true
-			if SolveSudokuHelper(board, nextRow, nextCol) {
+			if SolveSudokuHelper(board, memoRow, memoCol, memoGrid, nextRow, nextCol) {
 				// Then it means puzzle solved
 				return true
 			}
 			// Otherwise, Backtrack: "unplace" the number at current cell
 			board[row][col] = 0
+			memoRow[row][num] = false
+			memoCol[col][num] = false
+			memoGrid[row/3][col/3][num] = false
 		}
 	}
 	// Reaching this point means that none of the numbers from 1 to 9 can be placed at current cell
@@ -92,56 +88,36 @@ func SolveSudoku(sudoku [][]int) [][]int {
 	// For storing the index of the first unfilled cell
 	row := -1
 	col := -1
-    for i := 0; i < len(sudoku); i++ {
-        for j := 0; j < len(sudoku[i]); j++ {
+	// For storing whether a number in a row, col, grid is already placed
+	// All elements in array automatically initialized to false
+	var rowsMemo, colsMemo [9][10]bool
+	var gridsMemo [3][3][10]bool
+
+    for i := 0; i < 9; i++ {
+        for j := 0; j < 9; j++ {
+			// Get number at current cell
+			num := sudoku[i][j]
 			// Preprocess the board by filling all unfilled values with 0
-			if sudoku[i][j] < 1 || sudoku[i][j] > 9 {
+			if num < 1 || num > 9 {
 				sudoku[i][j] = 0
 				// Find the index of the first unfilled cell
 				if row == -1 {
 					row = i
 					col = j
 				}
+			// Preprocess which nums already exist in current row/col/grid
+			} else {
+				// Update memo to true to indicate that num exists in this row/col/grid
+				rowsMemo[i][num] = true
+				colsMemo[j][num] = true
+				gridsMemo[i/3][j/3][num] = true
 			}
         }
     }
 	// Calls helper function which does the backtracking
-	// Pass sudoku 2d array by reference
-	SolveSudokuHelper(sudoku, row, col)
+	// Pass sudoku 2d array and 3 memos by reference
+	SolveSudokuHelper(sudoku, rowsMemo, colsMemo, gridsMemo, row, col)
 	return sudoku
-}
-
-// Unit test for Promising function
-func testPromising() {
-	input := [][]int{
-		{5, 3, 0, 0, 7, 0, 0, 0, 0},
-		{6, 0, 0, 1, 9, 5, 0, 0, 0},
-		{0, 9, 8, 0, 0, 0, 0, 6, 0},
-		{8, 0, 0, 0, 6, 0, 0, 0, 3},
-		{4, 0, 0, 8, 0, 3, 0, 0, 1},
-		{7, 0, 0, 0, 2, 0, 0, 0, 6},
-		{0, 6, 0, 0, 0, 0, 2, 8, 0},
-		{0, 0, 0, 4, 1, 9, 0, 0, 5},
-		{0, 0, 0, 0, 8, 0, 0, 7, 9},
-	}
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 2, 0, 5))
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 2, 0, 7))
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 2, 0, 4))
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 2, 0, 9))
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 2, 0, 3))
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 2, 0, 8))
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 2, 0, 6))
-	fmt.Printf("Expected: %t; Got: %t\n", true, Promising(input, 2, 0, 1))
-	fmt.Printf("Expected: %t; Got: %t\n", true, Promising(input, 2, 0, 2))
-
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 7, 6, 7))
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 7, 6, 9))
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 7, 6, 8))
-
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 8, 5, 4))
-	fmt.Printf("Expected: %t; Got: %t\n", false, Promising(input, 8, 5, 1))
-	fmt.Printf("Expected: %t; Got: %t\n", true, Promising(input, 8, 5, 6))
-	fmt.Printf("Expected: %t; Got: %t\n", true, Promising(input, 8, 5, 2))
 }
 
 func main() {
