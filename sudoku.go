@@ -132,18 +132,16 @@ func isValid(grid [][]int, x_coords int, y_coords  int, test_num int) bool {
 	
 	
 	//check if exists in the entire grid's x_coords row
+	// and y_coords column
 	for i := 0; i < 9; i++ {
 		if (grid[x_coords][i] == test_num ){
 		  return false;
 		}
-	  }
-	
-	  //check if exists in the entire grid's y_coords row
-	  for i := 0; i < 9; i++ {
 		if (grid[i][y_coords] == test_num) {
-		  return false;
-		}
+			return false;
+		  }
 	  }
+
 	
 	  // Check the 3x3 grid in sudoku
 	  startRow  :=  x_coords - x_coords%3;
