@@ -2,22 +2,21 @@ package main
 
 import "fmt"
 
-// REQUIRES: existing board is valid
+// REQUIRES: Existing board is valid
 // 			 0 <= row, col <= 8; board[row][col] is unfilled
 //			 1 <= num <= 9
 // MODIFIES: N/A
 // EFFECTS: Determines if placing num at board[row][col] is valid
 func Promising(board [][]int, row int, col int, num int) bool {
-	// check all cells on the same row and same column as the cell at [row][col]
+	// Check all cells on the same row or same column as the cell at [row][col]
 	for i := 0; i < 9; i++ {
 		if board[row][i] == num || board[i][col] == num {
 			return false
 		}
 	}
-	// check all cells in the same 3 by 3 grid as the cell at [row][col]
+	// Check all cells in the same 3 by 3 grid as the cell at [row][col]
 	startRowIdx := (row / 3) * 3
 	startColIdx := (col / 3) * 3
-	// fmt.Printf("Start row idx: %d, Start col idx: %d\n", startRowIdx, startColIdx)
 	for i := startRowIdx; i < startRowIdx + 3; i++ {
 		for j := startColIdx; j < startColIdx + 3; j++ {
 			if board[i][j] == num {
@@ -58,13 +57,12 @@ func FindNextUnfilled(board [][]int, curRow int, curCol int) (int, int) {
 // MODIFIES: board
 // EFFECTS: Performs a (recursive) backtracking algorithm to solve the sudoku
 func SolveSudokuHelper(board [][]int, row int, col int) bool {
-	// If sudoku is solved, return true
-	// All cells filled -> Solved!
+	// If sudoku is solved, i.e. all cells have been filled
 	if row < 0 {
 		return true
 	}
 	// Otherwise
-	// Try to place number 1 through 9 at current row and col
+	// Try to place number 1 through 9 at current [rol][col]
 	for num := 1; num <= 9; num++ {
 		// Check constraint: If placing this number does not violate any rules of sudoku
 		if Promising(board, row, col, num) {
@@ -74,7 +72,7 @@ func SolveSudokuHelper(board [][]int, row int, col int) bool {
 			nextRow, nextCol := FindNextUnfilled(board, row, col)
 			// If recursive function call returned true
 			if SolveSudokuHelper(board, nextRow, nextCol) {
-				// then it means puzzle solved so return true
+				// Then it means puzzle solved
 				return true
 			}
 			// Otherwise, Backtrack: "unplace" the number at current cell
@@ -91,7 +89,7 @@ func SolveSudokuHelper(board [][]int, row int, col int) bool {
 // MODIFIES: N/A
 // EFFECTS: Solves the sudoku, returns a 9 by 9 array of the solved sudoku
 func SolveSudoku(sudoku [][]int) [][]int {
-	// for storing the index of the first unfilled cell
+	// For storing the index of the first unfilled cell
 	row := -1
 	col := -1
     for i := 0; i < len(sudoku); i++ {
@@ -107,12 +105,13 @@ func SolveSudoku(sudoku [][]int) [][]int {
 			}
         }
     }
-	// calls helper function which does the backtracking
-	// pass sudoku 2d array by reference
+	// Calls helper function which does the backtracking
+	// Pass sudoku 2d array by reference
 	SolveSudokuHelper(sudoku, row, col)
 	return sudoku
 }
 
+// Unit test for Promising function
 func testPromising() {
 	input := [][]int{
 		{5, 3, 0, 0, 7, 0, 0, 0, 0},
@@ -165,6 +164,4 @@ func main() {
         }
         fmt.Println()
     }
-
-	// testPromising()
 }
