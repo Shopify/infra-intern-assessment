@@ -17,7 +17,7 @@ func Promising(board [][]int, row int, col int, num int) bool {
 	// check all cells in the same 3 by 3 grid as the cell at [row][col]
 	startRowIdx := (row / 3) * 3
 	startColIdx := (col / 3) * 3
-	fmt.Printf("Start row idx: %d, Start col idx: %d\n", startRowIdx, startColIdx)
+	// fmt.Printf("Start row idx: %d, Start col idx: %d\n", startRowIdx, startColIdx)
 	for i := startRowIdx; i < startRowIdx + 3; i++ {
 		for j := startColIdx; j < startColIdx + 3; j++ {
 			if board[i][j] == num {
@@ -26,6 +26,31 @@ func Promising(board [][]int, row int, col int, num int) bool {
 		}
 	}
 	return true
+}
+
+// REQUIRES: Existing board is valid
+// 			 0 <= curRow, curCol <= 8
+//			 curRow, curCol corresponds to the cell that was just filled
+// MODIFIES: N/A
+// EFFECTS: Returns the row and column index of the next unfilled cell
+//			Returns -1, -1 if all cells are filled
+func FindNextUnfilled(board [][]int, curRow int, curCol int) (int, int) {
+	// Look for unfilled cells in current row first
+	for j := curCol + 1; j < 9; j++ {
+		if board[curRow][j] == 0 {
+			return curRow, j
+		}
+	}
+	// Then move on to the next row(s)
+	for i := curRow + 1; i < 9; i++ {
+		for j := 0; j < 9; j++ {
+			if board[i][j] == 0 {
+				return i, j
+			}
+		}
+	}
+	// No unfilled cell found
+	return -1, -1
 }
 
 // REQUIRES: board is a 2d array representing a sudoku with exactly 1 solution
@@ -42,7 +67,12 @@ func SolveSudokuHelper(board [][]int, row int, col int) bool {
 			// Place number
 			board[row][col] = num
 			// Recursion with the next unfilled cell on the board
-
+			nextRow, nextCol := FindNextUnfilled(board, row, col)
+			fmt.Printf("Next row: %d, Next col: %d\n", nextRow, nextCol)
+			// All cells filled -> Solved!
+			if nextRow < 0 {
+				return true
+			}
 			// If recursive function call returned true, then it means puzzle solved so return true
 		// Otherwise, Backtrack: "unplace" the number at current cell
 		}
@@ -57,15 +87,25 @@ func SolveSudokuHelper(board [][]int, row int, col int) bool {
 // Modifies: N/A
 // Effects: Solves the sudoku, returns a 9 by 9 array of the solved sudoku
 func SolveSudoku(sudoku [][]int) [][]int {
+	// for storing the index of the first unfilled cell
+	row := -1
+	col := -1
     for i := 0; i < len(sudoku); i++ {
         for j := 0; j < len(sudoku[i]); j++ {
-            fmt.Printf("%d ", sudoku[i][j])
+			// Preprocess the board by filling all unfilled values with 0
+			if sudoku[i][j] < 1 || sudoku[i][j] > 9 {
+				sudoku[i][j] = 0
+				// Find the index of the first unfilled cell
+				if row == -1 {
+					row = i
+					col = j
+				}
+			}
         }
-        fmt.Println()
     }
 	// calls helper function which does the backtracking
 	// pass sudoku 2d array by reference
-	SolveSudokuHelper(sudoku, 0, 0)
+	SolveSudokuHelper(sudoku, row, col)
 	return sudoku
 }
 
@@ -102,18 +142,18 @@ func testPromising() {
 }
 
 func main() {
-	// input := [][]int{
-	// 	{5, 3, 0, 0, 7, 0, 0, 0, 0},
-	// 	{6, 0, 0, 1, 9, 5, 0, 0, 0},
-	// 	{0, 9, 8, 0, 0, 0, 0, 6, 0},
-	// 	{8, 0, 0, 0, 6, 0, 0, 0, 3},
-	// 	{4, 0, 0, 8, 0, 3, 0, 0, 1},
-	// 	{7, 0, 0, 0, 2, 0, 0, 0, 6},
-	// 	{0, 6, 0, 0, 0, 0, 2, 8, 0},
-	// 	{0, 0, 0, 4, 1, 9, 0, 0, 5},
-	// 	{0, 0, 0, 0, 8, 0, 0, 7, 9},
-	// }
-	// SolveSudoku(input)
+	input := [][]int{
+		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+	SolveSudoku(input)
 
-	testPromising()
+	// testPromising()
 }
