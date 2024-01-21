@@ -2,6 +2,23 @@ package main
 
 import "fmt"
 
+// REQUIRES: board is a 2d array representing a sudoku with exactly 1 solution
+//			 0 <= row, col <= 8
+// MODIFIES: board
+// EFFECTS: Performs a (recursive) backtracking algorithm to solve the sudoku
+func SolveSudokuHelper(board [][]int, row int, col int) bool {
+	// If sudoku is solved, return true
+	// Otherwise
+	// Try to place number 1 through 9 at current row and col
+		// Check constraint: If placing this number does not violate any rules of sudoku
+			// Recursion with the next unfilled cell on the board
+			// If recursive function call returned true, then it means puzzle solved so return true
+		// Otherwise, Backtrack: "unplace" the number at current cell
+	// Reaching this point means that none of the numbers from 1 to 9 can be placed at current cell
+	// i.e. the number in a previous cell needs to change, thus Backtrack -> return to the caller!
+	return false
+}
+
 // Requires: The input grid will be a 9x9 two-dimensional array of integers.
 //			 The input grid will have exactly one solution.
 // Modifies: N/A
@@ -13,6 +30,9 @@ func SolveSudoku(sudoku [][]int) [][]int {
         }
         fmt.Println()
     }
+	// calls helper function which does the backtracking
+	// pass sudoku 2d array by reference
+	SolveSudokuHelper(sudoku, 0, 0)
 	return sudoku
 }
 
