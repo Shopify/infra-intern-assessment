@@ -59,6 +59,10 @@ func FindNextUnfilled(board [][]int, curRow int, curCol int) (int, int) {
 // EFFECTS: Performs a (recursive) backtracking algorithm to solve the sudoku
 func SolveSudokuHelper(board [][]int, row int, col int) bool {
 	// If sudoku is solved, return true
+	// All cells filled -> Solved!
+	if row < 0 {
+		return true
+	}
 	// Otherwise
 	// Try to place number 1 through 9 at current row and col
 	for num := 1; num <= 9; num++ {
@@ -68,13 +72,13 @@ func SolveSudokuHelper(board [][]int, row int, col int) bool {
 			board[row][col] = num
 			// Recursion with the next unfilled cell on the board
 			nextRow, nextCol := FindNextUnfilled(board, row, col)
-			fmt.Printf("Next row: %d, Next col: %d\n", nextRow, nextCol)
-			// All cells filled -> Solved!
-			if nextRow < 0 {
+			// If recursive function call returned true
+			if SolveSudokuHelper(board, nextRow, nextCol) {
+				// then it means puzzle solved so return true
 				return true
 			}
-			// If recursive function call returned true, then it means puzzle solved so return true
-		// Otherwise, Backtrack: "unplace" the number at current cell
+			// Otherwise, Backtrack: "unplace" the number at current cell
+			board[row][col] = 0
 		}
 	}
 	// Reaching this point means that none of the numbers from 1 to 9 can be placed at current cell
@@ -82,10 +86,10 @@ func SolveSudokuHelper(board [][]int, row int, col int) bool {
 	return false
 }
 
-// Requires: The input grid will be a 9x9 two-dimensional array of integers.
+// REQUIRES: The input grid will be a 9x9 two-dimensional array of integers.
 //			 The input grid will have exactly one solution.
-// Modifies: N/A
-// Effects: Solves the sudoku, returns a 9 by 9 array of the solved sudoku
+// MODIFIES: N/A
+// EFFECTS: Solves the sudoku, returns a 9 by 9 array of the solved sudoku
 func SolveSudoku(sudoku [][]int) [][]int {
 	// for storing the index of the first unfilled cell
 	row := -1
@@ -154,6 +158,13 @@ func main() {
 		{0, 0, 0, 0, 8, 0, 0, 7, 9},
 	}
 	SolveSudoku(input)
+
+    for i := 0; i < len(input); i++ {
+        for j := 0; j < len(input[i]); j++ {
+            fmt.Printf("%d ", input[i][j])
+        }
+        fmt.Println()
+    }
 
 	// testPromising()
 }
