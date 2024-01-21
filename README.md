@@ -1,59 +1,53 @@
-# Technical Instructions
-1. Fork this repo to your local Github account.
-2. Create a new branch to complete all your work in.
-3. Test your work using the provided tests
-4. Create a Pull Request against the Shopify Main branch when you're done and all tests are passing
-
 # Shopify Intern Assessment Production Engineering
 
 ## Description
 
-Write a Go program that solves a given Sudoku puzzle. The program should take a 9x9 grid as input, where empty cells are represented by zeros (0), and output the solved Sudoku grid.
+This is a Go program that solves a given Sudoku puzzle. The program takes a 9x9 grid as input, where empty cells may be represented by zeros (0), and output the solved Sudoku grid (see [Constraints](#constraints) section for more info).
 
 A Sudoku puzzle is a 9x9 grid divided into nine 3x3 sub-grids. The goal is to fill in the empty cells with numbers from 1 to 9, such that each row, each column, and each sub-grid contains all the numbers from 1 to 9 without repetition.
 
-Your program should implement an efficient algorithm to solve the Sudoku puzzle and print the solved grid to the console.
+## My Implementation
+My implementation (see `sudoku.go`) uses a typical serial backtracking algorithm combined with memoization to efficiently solve a given 9 by 9 sudoku.
 
-### Example: Input:
-```
-[
-  [5, 3, 0, 0, 7, 0, 0, 0, 0],
-  [6, 0, 0, 1, 9, 5, 0, 0, 0],
-  [0, 9, 8, 0, 0, 0, 0, 6, 0],
-  [8, 0, 0, 0, 6, 0, 0, 0, 3],
-  [4, 0, 0, 8, 0, 3, 0, 0, 1],
-  [7, 0, 0, 0, 2, 0, 0, 0, 6],
-  [0, 6, 0, 0, 0, 0, 2, 8, 0],
-  [0, 0, 0, 4, 1, 9, 0, 0, 5],
-  [0, 0, 0, 0, 8, 0, 0, 7, 9]
-]
-```
+The motivation behind using a backtracking algorithm for this problem is because it is easy to implement and highly efficient in solving sudokus, perfectly matching what the Go language is known for: its simplicity and efficiency. Though Go is also known for its concurrency, from my experience, implementing a parallel algorithm to solve a 9 by 9 sudoku is not only complicated due to the inherent data dependencies, it also may not result in any runtime improvement at all since the synchronization and communication overheads introduced in a parallel program may outweigh the performance gain when the input size is small.
 
-### Program Output:
-```
-[
-  [5, 3, 4, 6, 7, 8, 9, 1, 2],
-  [6, 7, 2, 1, 9, 5, 3, 4, 8],
-  [1, 9, 8, 3, 4, 2, 5, 6, 7],
-  [8, 5, 9, 7, 6, 1, 4, 2, 3],
-  [4, 2, 6, 8, 5, 3, 7, 9, 1],
-  [7, 1, 3, 9, 2, 4, 8, 5, 6],
-  [9, 6, 1, 5, 3, 7, 2, 8, 4],
-  [2, 8, 7, 4, 1, 9, 6, 3, 5],
-  [3, 4, 5, 2, 8, 6, 1, 7, 9]
-]
-```
+I also took adavantage of the given constraints in the problem statement that the input sudoku is guaranteed to be 9 by 9 and have exactly 1 solution, by adding memoization to improve the runtime of the constraint-checking function, which determines whether placing a number at an unfilled cell would still result in a valid sudoku. By doing so, the constraint-checking function only needs 1 boolean statement, as compared to a naive for loop. Despite both implementation being theoretically O(1) given a fixed-size input, practically, the memoization approach did result in some minor speedup (< 1 ms difference when tested with a difficult sudoku), therefore it is kept in the final implementation.
 
-## Instructions:
-1. Write a function called SolveSudoku that takes a 9x9 grid as input and returns the solved Sudoku grid.
-2. Implement an efficient algorithm to solve the Sudoku puzzle. You can use any approach or technique you prefer.
-3. Confirm the validity of your code against the tests found in this repo.
-4. Ensure that your code is well-documented and easy to understand.
+For more low-level details on how the backtracking & memoization worked (e.g. specific functions definitions, variables, data structures, etc.), see `sudoku.go`.
+
+### Test Cases
+More test cases are added in `sudoku_test.go`, which tests some edge cases such as the given sudoku is already completed, everything is filled in the sudoku except 1 cell, etc.
+
+## Running the Program
+To run the tests, open project root directory (e.g. `infra-intern-assessment`) in terminal, run `go test`.
+
+Or, you can do the following to solve a custome sudoku:
+1. Add a main function in `sudoku.go`
+2. Make a sudoku of your choice in the form of 2d array
+3. Call `SolveSudoku` function with the sudoku you just made
+```Go
+// Example main function with a user-defined sudoku
+func main() {
+  mySudoku := [][]int{
+    {5, 3, 0, 0, 7, 0, 0, 0, 0},
+    {6, 0, 0, 1, 9, 5, 0, 0, 0},
+    {0, 9, 8, 0, 0, 0, 0, 6, 0},
+    {8, 0, 0, 0, 6, 0, 0, 0, 3},
+    {4, 0, 0, 8, 0, 3, 0, 0, 1},
+    {7, 0, 0, 0, 2, 0, 0, 0, 6},
+    {0, 6, 0, 0, 0, 0, 2, 8, 0},
+    {0, 0, 0, 4, 1, 9, 0, 0, 5},
+    {0, 0, 0, 0, 8, 0, 0, 7, 9},
+  }
+  // call function that solves the sudoku
+  SolveSudoku(mySudoku)
+  // print result
+  PrintSudoku(mySudoku)
+}
+```
 
 ## Constraints:
 - The input grid will be a 9x9 two-dimensional array of integers.
 - The input grid will have exactly one solution.
 - The input grid may contain zeros (0) to represent empty cells.
 
-## Validation: 
-To validate the correctness of the solution, you can compare the output of the program with the expected output for a set of test cases containing unsolved Sudoku puzzles.
