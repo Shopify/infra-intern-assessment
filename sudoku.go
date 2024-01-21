@@ -12,7 +12,7 @@ import (
 // Rather I will be implementing a simpler and slower approach: backtracking
 // We can further optimize this backtracking via Memoization
 
-// These variables will store all values that are not empty/0
+// These memoization map variables will store all values that are not empty
 var rows_visit [9][9][10]bool;
 var cols_visit [9][9][10]bool;
 var box_visit [9][9][10]bool;
@@ -174,7 +174,6 @@ func showBoard(grid [][]int) {
 	}
 	fmt.Println()
 }
-
 
 
 
