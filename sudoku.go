@@ -37,14 +37,14 @@ func backtrack(cellNum int, board [][]int, rowsFilled, colsFilled, boxesFilled [
 
 	row, col := cellNum/9, cellNum%9
 	if board[row][col] == 0 { // If current cell is empty.
-		for num := 1; num <= 9; num++ {
+		for num := 1; num <= 9; num++ { // Try all possible numbers that can be filled in current blank cell
 			if canPlace(row, col, num, rowsFilled, colsFilled, boxesFilled) {
 				board[row][col] = num
 				markFilled(row, col, num, true, rowsFilled, colsFilled, boxesFilled)
-				if backtrack(cellNum+1, board, rowsFilled, colsFilled, boxesFilled) {
-					return true // Continue with the next cell.
+				if backtrack(cellNum+1, board, rowsFilled, colsFilled, boxesFilled) { // recursively try continuing with next cell
+					return true
 				}
-				markFilled(row, col, num, false, rowsFilled, colsFilled, boxesFilled)
+				markFilled(row, col, num, false, rowsFilled, colsFilled, boxesFilled) // backtrack by marking the cell as unfilled
 				board[row][col] = 0
 			}
 		}
