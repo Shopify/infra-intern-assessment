@@ -1,13 +1,9 @@
 package main
 
 // Function to be called to solve a sudoku board of size 9 by 9
-// create copy of input board as to not mutate source value
 func SolveSudoku(board [][]int) [][]int {
-	var newBoard [][]int
-	copy(newBoard, board)
-	solve(newBoard, 0, 0)
-
-	return newBoard
+	solve(board, 0, 0)
+	return board
 }
 
 //recursive solution to solve input board
