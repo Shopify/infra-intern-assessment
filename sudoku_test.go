@@ -1,9 +1,70 @@
-package main
+package sudoku
 
 import (
 	"reflect"
 	"testing"
 )
+
+
+func TestIsPossible(t *testing.T) {
+	grid := [][]int{
+		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+	result := isPossible(grid, 1, 1 , 1)
+	if result != false {
+		t.Errorf("Should not insert illegal number in grid")
+	}
+
+	result = isPossible(grid, 1, 1 , 4)
+	if result != true {
+		t.Errorf("Should be able to add legal number in the grid")	
+	}
+}
+
+func TestIsSolved(t *testing.T) {
+	input := [][]int{
+		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+
+	result := isSolved(input, 0, 0)
+
+	if result != true {
+		t.Errorf("Bad sudoku algorithm")
+	}
+	
+	badInput := [][]int{
+		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 1},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+	
+	result = isSolved(badInput, 0, 0)
+	if result != false {
+		t.Errorf("Bad sudoku board")
+	}
+}
 
 func TestSolveSudoku(t *testing.T) {
 	input := [][]int{
