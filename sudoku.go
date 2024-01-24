@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 const GRID_SIZE = 9
 const SUBGRID_SIZE = 3
 
@@ -77,5 +79,20 @@ func SolveBoard(grid [][]int, row int, col int) bool {
 		return false
 	} else {
 		return SolveBoard(grid, row, col+1)
+	}
+}
+
+// PrintGrid takes the current sudoku grid and
+// prints in a pretty output to the console
+func PrintGrid(grid [][]int) {
+	for row := 1; row < GRID_SIZE; row++ {
+		fmt.Print("[")
+		for col := 1; col < GRID_SIZE; col++ {
+			fmt.Printf("%d", grid[row][col])
+			if col != GRID_SIZE-1 {
+				fmt.Printf(", ")
+			}
+		}
+		fmt.Println("]")
 	}
 }
