@@ -36,3 +36,34 @@ func TestSolveSudoku(t *testing.T) {
 		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
 	}
 }
+
+// func TestSolveCustomSudoku(t *testing.T) {
+// 	custom_input := [][]int{
+// 		{8, 2, 7, 1, 0, 0, 0, 0, 6},
+// 		{0, 6, 5, 3, 0, 7, 1, 0, 8},
+// 		{3, 4, 1, 6, 0, 0, 0, 0, 2},
+// 		{5, 0, 0, 4, 6, 8, 2, 0, 1},
+// 		{0, 7, 0, 0, 1, 3, 6, 8, 9},
+// 		{6, 1, 0, 9, 7, 2, 4, 3, 5},
+// 		{0, 8, 6, 2, 3, 5, 9, 0, 0},
+// 		{1, 0, 0, 7, 9, 6, 8, 2, 3},
+// 		{2, 3, 9, 8, 4, 1, 0, 0, 0},
+// 	}
+// 	custom_expected := [][]int{
+// 		{8, 2, 7, 1, 5, 4, 3, 9, 6},
+// 		{9, 6, 5, 3, 2, 7, 1, 4, 8},
+// 		{3, 4, 1, 6, 8, 9, 7, 5, 2},
+// 		{5, 9, 3, 4, 6, 8, 2, 7, 1},
+// 		{4, 7, 2, 5, 1, 3, 6, 8, 9},
+// 		{6, 1, 8, 9, 7, 2, 4, 3, 5},
+// 		{7, 8, 6, 2, 3, 5, 9, 1, 4},
+// 		{1, 5, 4, 7, 9, 6, 8, 2, 3},
+// 		{2, 3, 9, 8, 4, 1, 5, 6, 7},
+// 	}
+
+// 	custom_solved := SolveSudoku(custom_input)
+
+// 	if !reflect.DeepEqual(custom_solved, custom_expected) {
+// 		t.Errorf("Custom sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", custom_expected, custom_solved)
+// 	}
+// }
