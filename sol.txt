@@ -1,0 +1,24 @@
+# Implementation related to the algorithms discussed here: 
+# http://programmers.enjoysudoku.com/www.setbb.com/sudoku/viewtopicd8da.html?t=241&mforum=sudoku
+# http://forum.enjoysudoku.com/a-fast-c-solver-t33474.html
+
+Operating Under The Constraints:
+- We can assume that we receive >=17 clues since proven lower bound for a valid sudoku with only one solution (https://arxiv.org/abs/1201.0749)
+
+Algorithm:
+- For a 9x9 sudoku, we can generate 46656 bit vectors that represent all possible templates/patterns for a sudoku solution
+    - Cache these in memory, could be done in I/O if desired
+- Create a normalised vector from nested arrays
+- Traverse through given sudoku and for each symbol we create two bit vectors, one for the occurence of its respective number and one as 'negative' of all the other numbers
+    - Create 9 goroutines to filter through all possible templates
+        - For each pattern, perform bitwise AND with occurence vector and result if equal to occurence vector then move on to next step [O(1)]
+        - Now, perform bitwise AND with 'negative' vector and if result is zero then, a possible template is found [O(1)]
+        - Add the template to a set of possible templates (Is copying bitvector more expensive than a pointer?) for that number
+- We then obtain 9 sets of possible templates
+- Apply templates and backtrack when conflict occurs
+ - Apply algorithm:
+   - Start with 0 or previous bitvector
+   - AND with template, if result is equal to 0 then this template is valid (for now)
+    - XOR with template, continue
+   - If result is not equal to 0 then this template is not valid, backtrack using XOR
+- Return first vaild permutation of templates for a solved sudoku
