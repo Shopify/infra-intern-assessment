@@ -15,12 +15,14 @@ func SolveSudoku(sudoku [][]int) [][]int {
 //  The result will be a 9x9 grid where:
 //      no value appears twice in any row or column,
 //      no value appears twice in any of the 9 mutually exclusive 3x3 grids.
+//  Returns true if the board is solved, false otherwise.
 func solve(sudoku [][]int) bool {
     
     for i := 0; i < 9; i++ {
         
         for j := 0; j < 9; j++ {
-            
+            //  don't need to worry about cells with values; only replace
+            //  empties
             if sudoku[i][j] != 0 {
                 continue;
             }
@@ -28,24 +30,34 @@ func solve(sudoku [][]int) bool {
                 if !isPossible(sudoku, i, j, val) {
                     continue;
                 }
+                //  val is a potential candidate for this cell; try it and 
+                //  solve the resulting board. if it didn't work, remove it
+                //  and try a different val
                 sudoku[i][j] = val;
                 if solve(sudoku) {
                     return true
                 }
                 sudoku[i][j] = 0
             }
+            // every val doesn't work for this cell; board is unsolvable
             return false
         }
     }
+    // every cell is filled
     return true
 }
 
+//  isPossible checks if val can be placed in a cell (specified by its row
+//  and col)  without rendering the current board invalid, if so returns true
+//  and false otherwise.
 func isPossible(sudoku [][]int, row int, col int, val int) bool {
     return uniqueInRow(sudoku, row, val) &&
         uniqueInCol(sudoku, col, val) &&
         uniqueInBox(sudoku, row, col, val) 
 }
 
+//  uniqueInRow checks if val can be placed in row without being duplicate,
+//  if so returns true, and false otherwise.
 func uniqueInRow(sudoku [][]int, row int, val int) bool {
     for j := 0; j < 9; j++ {
         if sudoku[row][j] == val {
@@ -55,6 +67,8 @@ func uniqueInRow(sudoku [][]int, row int, val int) bool {
     return true
 }
 
+//  uniqueInCol checks if val can be placed in col without being duplicate,
+//  if so returns true, and false otherwise.
 func uniqueInCol(sudoku [][]int, col int, val int) bool {
     for i := 0; i < 9; i++ {
         if sudoku[i][col] == val {
@@ -64,7 +78,10 @@ func uniqueInCol(sudoku [][]int, col int, val int) bool {
     return true
 }
 
+//  uniqueInBox checks if val can be placed in the box that cell (row, col) is
+//  in without being duplicate, if so returns true, and false otherwise.
 func uniqueInBox(sudoku [][]int, row int, col int, val int) bool {
+    // coordinates of the top left cell of the box specified by (row, col)
     boxCol := (col / 3)*3;
     boxRow := (row / 3)*3;
 
