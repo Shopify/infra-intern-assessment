@@ -2,7 +2,7 @@ package main
 
 // SolveSudoku solves the provided sudoku puzzle and returns the
 // solved version. If the provided puzzle does not have a valid
-// solution or is, return nil
+// solution or has an invalid shape or invalid elements, return nil
 func SolveSudoku(sudoku [][]int) [][]int {
 
 	if !checkValidSudoku(sudoku) {
@@ -47,7 +47,7 @@ func checkValidSudoku(sudoku [][]int) bool {
 		return false
 	}
 
-	// check number of columns
+	// check number of columns and elements in column
 	for _, row := range sudoku {
 		if len(row) != 9 {
 			return false
