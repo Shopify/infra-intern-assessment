@@ -48,7 +48,7 @@ func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec *[]uint8, inde
 	num := input[index]
 
 	for _, template := range num.possibleTemplates {
-		t := new(big.Int).And(&template, freeGrid)
+		t := new(big.Int).And(freeGrid, &template)
 
 		if len(t.Bits()) == 0 {
 			freeGrid.Xor(freeGrid, &template)
