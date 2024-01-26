@@ -1,6 +1,7 @@
 package main
 
-// IntSet the set of Ints
+// Implelmentation of sets to store Int values
+//TODO: Implement bitsets as we only store values between 1-9
 
 type void struct{}
 

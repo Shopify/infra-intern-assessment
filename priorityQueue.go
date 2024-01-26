@@ -1,5 +1,7 @@
 package main
 
+// Priority Queue is based of the GoLang heap Documentation - https://pkg.go.dev/container/heap
+
 // An Item is something we manage in a priority queue.
 type Item struct {
 	position Position
