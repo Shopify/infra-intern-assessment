@@ -1,20 +1,105 @@
 package main
 
 import (
+	"fmt"
 	"math/big"
+	"sort"
 )
 
 // Using big.Int as a bit vector since it isn't the worst
 // performance wise and is availble through the standard library
 // https://medium.com/@val_deleplace/7-ways-to-implement-a-bit-set-in-go-91650229b386
 type SudokuNum struct {
-	occurs    big.Int
-	conflicts big.Int
-	templates []big.Int
+	occurs            big.Int
+	conflicts         big.Int
+	possibleTemplates []big.Int
+	validIndex        int
+	symbol            uint8
 }
 
-func vecToBits(vec []int8) []SudokuNum {
+func SolveSudoku(input [][]int) [][]int {
+	var baseTemplate big.Int
+	var freeGrid big.Int
+	var templates []big.Int
+
+	n := generateSudokuTemplates(&baseTemplate, &freeGrid, &templates, 0, 0)
+
+	fmt.Printf("Generated %d templates\n", n)
+
+	inputVec := vectorize(input)
+	inputNums := vecToBits(inputVec)
+
+	numOps := 1
+
+	for i := range inputNums {
+		findValidTemplates(templates, &inputNums[i])
+		fmt.Printf("Found %d valid templates for symbol %d\n", len(inputNums[i].possibleTemplates), inputNums[i].symbol)
+		numOps *= len(inputNums[i].possibleTemplates)
+	}
+
+	fmt.Printf("Max number of backtracking operations: %d\n", numOps)
+
+	sort.Slice(inputNums, func(i, j int) bool {
+		return len(inputNums[i].possibleTemplates) < len(inputNums[j].possibleTemplates)
+	})
+
+	freeGrid.SetInt64(0)
+	solvedVec := make([]uint8, 81)
+	fmt.Println(dfsBacktrack(inputNums, &freeGrid, &solvedVec, 0))
+
+	return sudokurize(solvedVec)
+}
+
+func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec *[]uint8, index int) bool {
+	if index >= 9 {
+		return true
+	}
+
+	num := input[index]
+
+	fmt.Println(len(num.possibleTemplates))
+
+	for j, template := range num.possibleTemplates {
+		t := new(big.Int).And(&template, freeGrid)
+
+		fmt.Printf("Trying template %d for symbol %d\n", j, num.symbol)
+
+		if len(t.Bits()) == 0 {
+			freeGrid.Xor(freeGrid, &template)
+			rtn := dfsBacktrack(input, freeGrid, solvedVec, index+1)
+			if rtn {
+				num.validIndex = j
+				insertBitsToVec(template, num.symbol, solvedVec)
+				return true
+			} else {
+				freeGrid.Xor(freeGrid, &template)
+			}
+		}
+	}
+
+	return false
+}
+
+// https://stackoverflow.com/questions/64257065/is-there-another-way-of-testing-if-a-big-int-is-0
+func findValidTemplates(templates []big.Int, input *SudokuNum) {
+	for _, template := range templates {
+		t1 := new(big.Int).And(&template, &input.conflicts)
+		if len(t1.Bits()) == 0 {
+			t2 := new(big.Int).And(&template, &input.occurs)
+			if t2.Cmp(&input.occurs) == 0 {
+				input.possibleTemplates = append(input.possibleTemplates, template)
+			}
+		}
+	}
+}
+
+func vecToBits(vec []uint8) []SudokuNum {
 	result := make([]SudokuNum, 9)
+
+	for i := range result {
+		result[i].symbol = uint8(i + 1)
+	}
+
 	for i, n := range vec {
 		if n != 0 {
 			for j := 0; j < 9; j++ {
@@ -27,25 +112,26 @@ func vecToBits(vec []int8) []SudokuNum {
 	return result
 }
 
-func insertBitsToVec(bits big.Int, num int8, input []int8) {
+func insertBitsToVec(bits big.Int, num uint8, input *[]uint8) {
+	fmt.Println("Inserting bits")
 	for i := 0; i < 81; i++ {
 		if bits.Bit(i) == 1 {
-			input[i] = num
+			(*input)[i] = num
 		}
 	}
 }
 
-func vectorize(input [][]int) []int8 {
-	var result []int8
+func vectorize(input [][]int) []uint8 {
+	var result []uint8
 	for _, arr := range input {
 		for _, n := range arr {
-			result = append(result, int8(n))
+			result = append(result, uint8(n))
 		}
 	}
 	return result
 }
 
-func sudokurize(input []int8) [][]int {
+func sudokurize(input []uint8) [][]int {
 	var result [][]int
 	for i := 0; i < 9; i++ {
 		var row []int
@@ -57,16 +143,61 @@ func sudokurize(input []int8) [][]int {
 	return result
 }
 
-func SolveSudoku(input [][]int) [][]int {
+// TODO: cache this
+func generateSudokuTemplates(currGrid *big.Int, freeGrid *big.Int, templates *[]big.Int, row int, count int) int {
+	if row >= 9 {
+		newTemplate := new(big.Int).Set(currGrid)
+		*templates = append(*templates, *newTemplate)
+		return count + 1
+	}
 
-	return input
+	for i := 0; i < 9; i++ {
+		cellPos := row*9 + i
+		if freeGrid.Bit(cellPos) != 0 {
+			continue
+		}
+		prevFreeGrid := new(big.Int).Set(freeGrid)
+		setCell(currGrid, freeGrid, cellPos)
+		count = generateSudokuTemplates(currGrid, freeGrid, templates, row+1, count)
+		currGrid.SetBit(currGrid, cellPos, 0)
+		freeGrid.Set(prevFreeGrid)
+	}
+
+	return count
 }
 
-// func printBits(input []SudokuNum) {
-// 	for i, n := range input {
-// 		fmt.Printf("\n%d: %b\n   %b\n", i+1, &n.occurs, &n.conflicts)
-// 		t := make([]int8, 81)
-// 		insertBitsToVec(n.occurs, 9, t)
-// 		fmt.Println(t)
-// 	}
-// }
+func setCell(grid *big.Int, freeGrid *big.Int, pos int) {
+	// Set cell
+	grid.SetBit(grid, pos, 1)
+
+	// Set row conflicts
+	row := pos / 9
+	for i := 0; i < 9; i++ {
+		freeGrid.SetBit(freeGrid, row*9+i, 1)
+	}
+
+	// Set column conflicts
+	col := pos % 9
+	for i := 0; i < 9; i++ {
+		freeGrid.SetBit(freeGrid, i*9+col, 1)
+	}
+
+	// Set box conflicts
+	boxRow := row / 3
+	boxCol := col / 3
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			freeGrid.SetBit(freeGrid, (boxRow*3+i)*9+(boxCol*3+j), 1)
+		}
+	}
+}
+
+func printSudoku(input big.Int) {
+	fmt.Println()
+	for i := 0; i < 9; i++ {
+		for j := 0; j < 9; j++ {
+			fmt.Printf("%d ", input.Bit(i*9+j))
+		}
+		fmt.Println()
+	}
+}

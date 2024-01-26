@@ -1,6 +1,8 @@
 # Implementation related to the algorithms discussed here: 
 # http://programmers.enjoysudoku.com/www.setbb.com/sudoku/viewtopicd8da.html?t=241&mforum=sudoku
 # http://forum.enjoysudoku.com/a-fast-c-solver-t33474.html
+# http://forum.enjoysudoku.com/pattern-overlay-method-t40180.html
+# http://forum.enjoysudoku.com/converting-from-candidate-space-to-pom-space-and-beyond-t4398.html#p31067 
 
 Operating Under The Constraints:
 - We can assume that we receive >=17 clues since proven lower bound for a valid sudoku with only one solution (https://arxiv.org/abs/1201.0749)
