@@ -2,7 +2,7 @@ package main
 
 import (
 	"math/big"
-	"sort"
+	"sync"
 )
 
 // Using big.Int as a bit vector since it isn't the worst
@@ -16,23 +16,25 @@ type SudokuNum struct {
 }
 
 func SolveSudoku(input [][]int) [][]int {
+	var wg sync.WaitGroup
 	var baseTemplate big.Int
 	var freeGrid big.Int
 	var templates []big.Int
 
-	// Generate the 46656 possible sudoku templates
+	// Generate the 46656 possible templates in a 9x9 sudoku (probably faster than reading from a file)
 	generateSudokuTemplates(&baseTemplate, &freeGrid, &templates, 0, 0)
 
 	sudokuVec := vectorize(input)
 	inputNums := vecToBits(sudokuVec)
 
+	// - Since every goroutine is exclusively responsible
+	//   for modifying one SudokuNum, atomic access is not necessary
+	// - Parallelizing with Goroutines saves about 5000000 ns/op tested on M1-pro
+	wg.Add(len(inputNums))
 	for i := range inputNums {
-		findValidTemplates(templates, &inputNums[i])
+		go findValidTemplates(templates, &inputNums[i], &wg)
 	}
-
-	sort.Slice(inputNums, func(i, j int) bool {
-		return len(inputNums[i].possibleTemplates) < len(inputNums[j].possibleTemplates)
-	})
+	wg.Wait()
 
 	freeGrid.SetInt64(0)
 	dfsBacktrack(inputNums, &freeGrid, &sudokuVec, 0)
@@ -66,7 +68,9 @@ func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec *[]uint8, inde
 }
 
 // https://stackoverflow.com/questions/64257065/is-there-another-way-of-testing-if-a-big-int-is-0
-func findValidTemplates(templates []big.Int, input *SudokuNum) {
+func findValidTemplates(templates []big.Int, input *SudokuNum, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	for _, template := range templates {
 		t1 := new(big.Int).And(&template, &input.conflicts)
 		if len(t1.Bits()) == 0 {
