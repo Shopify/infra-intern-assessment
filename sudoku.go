@@ -84,13 +84,16 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	return solvedPuzzle
 }
 
-// fillPuzzle fills in the Sudoku puzzle with the correct numbers using a backtracking algorithm with crosshatching
-func fillPuzzle(puzzle [][]int, pos map[int][][]int, remaining map[int]int, graph map[int]map[int][]int) [][]int {
+// fillPuzzle fills in the Sudoku puzzle with the correct numbers using a backtracking algorithm
+// with crosshatching
+func fillPuzzle(puzzle [][]int, pos map[int][][]int, remaining map[int]int,
+				graph map[int]map[int][]int) [][]int {
 	// Add logic
 	return puzzle
 }
 
-// validPlacement checks if the number in the position puzzle[row][col] is in a valid spot according to the rules of Sudoku
+// validPlacement checks if the number in the position puzzle[row][col] is in a valid spot
+// according to the rules of Sudoku
 func validPlacement(puzzle [][]int, row int, col int) bool {
 	num := puzzle[row][col]
 	// Check if the number is in the same row or column
@@ -109,9 +112,9 @@ func validPlacement(puzzle [][]int, row int, col int) bool {
 	boxRowStart := row / 3 * 3
 	boxColStart := col / 3 * 3
 
-	for i := boxRowStart; i < boxRowStart + 3; i++ {
-		for j := boxColStart; j < boxColStart + 3; j++ {
-			if puzzle[i][j] == num && i != row && j != col {
+	for r := boxRowStart; r < boxRowStart + 3; r++ {
+		for c := boxColStart; c < boxColStart + 3; c++ {
+			if puzzle[r][c] == num && r != row && c != col {
 				return false
 			}
 		}
@@ -120,12 +123,34 @@ func validPlacement(puzzle [][]int, row int, col int) bool {
 	return true
 }
 
-// populatePosAndRemaining populates the pos and remaining maps with the appropriate values
-// func populatePosAndRemaining(puzzle [][]int) (map[int][][]int, map[int]int) {
-// }
+// createPosAndRem returns the position and remaining maps which contain the positions and
+// remaining counts of each number in the puzzle
+func createPosAndRem(puzzle [][]int) (map[int][][]int, map[int]int) {
+	pos := make(map[int][][]int)
+	rem := make(map[int]int)
 
-// populateGraph populates the graph map with the appropriate values
-// func populateGraph(puzzle [][]int) map[int]map[int][]int {
+	// Initialize pos and rem
+	for i := 1; i <= len(puzzle); i++ {
+		pos[i] = [][]int{}
+		rem[i] = 9
+	}
+
+	for r := 0; r < len(puzzle); r++ {
+		for c := 0; c < len(puzzle); c++ {
+			if puzzle[r][c] != 0 {  // Ignore 0s
+				// Add the position of the number to the pos map
+				pos[puzzle[r][c]] = append(pos[puzzle[r][c]], []int{r, c})
+				// Decrement the remaining count of the number
+				rem[puzzle[r][c]]--
+			}
+		}
+	}
+
+	return pos, rem
+}
+
+// createGraph creates the graph map with the appropriate values
+// func createGraph(puzzle [][]int) map[int]map[int][]int {
 // }
 
 // printPuzzle prints a Sudoku puzzle
