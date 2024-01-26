@@ -3,80 +3,84 @@ package main
 const BoardSize = 9
 const BoxSize = 3
 
-var CellDomains [BoardSize][BoardSize]uint16
+// State
+// 9 x 9 array of length 9 bitsets
+// Each bit represents whether (index + 1) is still in the domain (list of possible numbers) for that sudoku cell
 
-// STATE
-// 9 x 9 array of 9 bit vectors
-// Each bit represents whether (index + 1) is still in the domain for that sudoku cell
+// ex: Number               123456789
+//     BoardDomains[0][0] = 010101010
+//     Domain                2 4 6 8
 
-// ex: Number              123456789
-//     CellDomains[0][0] = 010101010
-//     Domain               2 4 6 8
+// Bitset representing whether a number is still possible for that cell
+type CellDomain uint16
 
-// MAIN DFS Function O()
-// Recursively iterates over the board (row wise)
-// Everytime an slot is assigned (backtracking possible), a generalized arc consistency is run to verify that the every cell's domain is still valid
+// Array of CellDomains representing the entire board
+var BoardDomains [BoardSize][BoardSize]CellDomain
 
-// GAC/Domain TESTER
-// Checks that every row, col, and box is valid
-// Will not check that they will necessarily work together
-// Runs DFS on the 9 9-bit vectors to ensure a path is possible (the numbers 1-9 can be selected from each domain)
-// O(N^N)
+// allowNumber adds k to the cell's domain
+func allowNumber(c CellDomain, k int) CellDomain {
+	return c | (1 << (k - 1))
+}
 
-// 123   456   789
-//
-// 100   000   000
-// 010   000   000
-// 001   000   000
-//
-// 010   100   000
-// 010   010   000
-// 010   001   000
-//
-// 010   000   100
-// 010   000   010
-// 010   000   001
+// disallowNumber removes k from the cell's domain
+func disallowNumber(c CellDomain, k int) CellDomain {
+	return c & ^(1 << (k - 1))
+}
 
-// initBoard initializes the CellDomains into bitsets representing the remaining domain per cell
+// allowAllNumbers allows every possible number in the cell's domain
+func allowAllNumbers() CellDomain {
+	return (1 << BoardSize) - 1
+}
+
+// disallowAllNumbers removes every number from the cell's domain
+func disallowAllNumbers() CellDomain {
+	return 0
+}
+
+// isAllowedNumber reports whether the number is allowed in the cell's domain
+func isAllowedNumber(c CellDomain, k int) bool {
+	return (c & (1 << (k - 1))) != 0
+}
+
+// getAllowedNumbers returns every number still allowed in the cell's domain
+func getAllowedNumbers(c CellDomain) []int {
+	allowedNumbers := make([]int, 0, BoardSize)
+
+	for i := 1; i < BoardSize+1; i++ {
+		if isAllowedNumber(c, i) {
+			allowedNumbers = append(allowedNumbers, i)
+		}
+	}
+	return allowedNumbers
+}
+
+// initBoard initializes the BoardDomains into bitsets representing the remaining domain (ie: possible numbers) per cell
 func initBoard(input [][]int) {
-	// Loops through input board
 	for i := 0; i < BoardSize; i++ {
 		for j := 0; j < BoardSize; j++ {
+			BoardDomains[i][j] = allowAllNumbers()
+
+			// If cell is filled, then set domain to just that number
 			if input[i][j] != 0 {
-				// If cell is filled, then collapse domain (0b000_010_000)
-				CellDomains[i][j] = 1 << (input[i][j] - 1)
-			} else {
-				// if cell is open, then open domain (0b111_111_111)
-				CellDomains[i][j] = (1 << BoardSize) - 1
+				BoardDomains[i][j] = disallowAllNumbers()
+				BoardDomains[i][j] = allowNumber(BoardDomains[i][j], input[i][j])
 			}
 		}
 	}
 }
 
-// finalizeBoard returns the properly formatted 2D array from the CellDomains
+// finalizeBoard returns the properly formatted 2D array from the BoardDomains
 func finalizeBoard() (output [][]int) {
-	// Initializes and loops through first dimension
 	output = make([][]int, BoardSize)
 	for i := 0; i < BoardSize; i++ {
-
-		// Initializes and loops through the 2nd dimension row
 		output[i] = make([]int, BoardSize)
 		for j := 0; j < BoardSize; j++ {
 
-			// Tracks how many true bits have been seen
-			trueBits := 0
+			allowedNumbers := getAllowedNumbers(BoardDomains[i][j])
 
-			// Loops through the bitset
-			for k := 0; k < BoardSize; k++ {
-				// Adds the index + 1 to the element if the bit is True
-				if CellDomains[i][j]&(1<<k) != 0 {
-					output[i][j] = k + 1
-					trueBits += 1
-				}
-			}
-
-			// If the domain is still flexible, set to zero (indicates a problem)
-			if trueBits != 1 {
+			if len(allowedNumbers) == 1 {
+				output[i][j] = allowedNumbers[0]
+			} else {
 				output[i][j] = 0
 			}
 		}
@@ -84,26 +88,23 @@ func finalizeBoard() (output [][]int) {
 	return output
 }
 
-// validate reports whether the numbers 1-9 can be recursively selected from the remaining bitset cells (house is valid)
-func validate(arr []uint16) bool {
+// validate reports whether the numbers 1-9 can be recursively selected from the remaining bitset cells
+func validate(remainingCells []CellDomain) bool {
 	// Base case means a path forming 1-9 is possible
-	if len(arr) == 0 {
+	if len(remainingCells) == 0 {
 		return true
 	}
 
-	// represents the bitset index of number that's being searched (ex: starts with looking for True at index 0)
-	k := BoardSize - len(arr)
+	curNum := BoardSize - len(remainingCells) + 1
 
-	// Loops through remaining bitsets
-	for i := 0; i < len(arr); i++ {
-		// Checks if bitset is 1 at index k
-		if (arr[i] & (1 << k)) != 0 {
+	for i, cell := range remainingCells {
+		if isAllowedNumber(cell, curNum) {
 			// Copies bitset array and removes the selected element
-			newArr := append([]uint16{}, arr[:i]...)
-			newArr = append(newArr, arr[i+1:]...)
+			newRemainingCells := append([]CellDomain{}, remainingCells[:i]...)
+			newRemainingCells = append(newRemainingCells, remainingCells[i+1:]...)
 
 			// Checks if the next remaining numbers can be selected from the remaining bitsets
-			if validate(newArr) {
+			if validate(newRemainingCells) {
 				return true
 			}
 		}
@@ -115,16 +116,16 @@ func validate(arr []uint16) bool {
 func validateAllDomains() bool {
 	// Check all rows
 	for row := 0; row < BoardSize; row++ {
-		res := validate([]uint16{
-			CellDomains[row][0],
-			CellDomains[row][1],
-			CellDomains[row][2],
-			CellDomains[row][3],
-			CellDomains[row][4],
-			CellDomains[row][5],
-			CellDomains[row][6],
-			CellDomains[row][7],
-			CellDomains[row][8],
+		res := validate([]CellDomain{
+			BoardDomains[row][0],
+			BoardDomains[row][1],
+			BoardDomains[row][2],
+			BoardDomains[row][3],
+			BoardDomains[row][4],
+			BoardDomains[row][5],
+			BoardDomains[row][6],
+			BoardDomains[row][7],
+			BoardDomains[row][8],
 		})
 		if !res {
 			return false
@@ -132,16 +133,16 @@ func validateAllDomains() bool {
 	}
 	// Verify all columns
 	for col := 0; col < BoardSize; col++ {
-		res := validate([]uint16{
-			CellDomains[0][col],
-			CellDomains[1][col],
-			CellDomains[2][col],
-			CellDomains[3][col],
-			CellDomains[4][col],
-			CellDomains[5][col],
-			CellDomains[6][col],
-			CellDomains[7][col],
-			CellDomains[8][col],
+		res := validate([]CellDomain{
+			BoardDomains[0][col],
+			BoardDomains[1][col],
+			BoardDomains[2][col],
+			BoardDomains[3][col],
+			BoardDomains[4][col],
+			BoardDomains[5][col],
+			BoardDomains[6][col],
+			BoardDomains[7][col],
+			BoardDomains[8][col],
 		})
 		if !res {
 			return false
@@ -151,16 +152,16 @@ func validateAllDomains() bool {
 	// Loops through box offsets 3,6,9 in both dimensions
 	for h_offset := 0; h_offset < BoardSize; h_offset += BoxSize {
 		for v_offset := 0; v_offset < BoardSize; v_offset += BoxSize {
-			res := validate([]uint16{
-				CellDomains[0+h_offset][0+v_offset],
-				CellDomains[1+h_offset][0+v_offset],
-				CellDomains[2+h_offset][0+v_offset],
-				CellDomains[0+h_offset][1+v_offset],
-				CellDomains[1+h_offset][1+v_offset],
-				CellDomains[2+h_offset][1+v_offset],
-				CellDomains[0+h_offset][2+v_offset],
-				CellDomains[1+h_offset][2+v_offset],
-				CellDomains[2+h_offset][2+v_offset],
+			res := validate([]CellDomain{
+				BoardDomains[0+h_offset][0+v_offset],
+				BoardDomains[1+h_offset][0+v_offset],
+				BoardDomains[2+h_offset][0+v_offset],
+				BoardDomains[0+h_offset][1+v_offset],
+				BoardDomains[1+h_offset][1+v_offset],
+				BoardDomains[2+h_offset][1+v_offset],
+				BoardDomains[0+h_offset][2+v_offset],
+				BoardDomains[1+h_offset][2+v_offset],
+				BoardDomains[2+h_offset][2+v_offset],
 			})
 			if !res {
 				return false
@@ -170,7 +171,7 @@ func validateAllDomains() bool {
 	return true
 }
 
-// DFS recursively runs depth first search throughout the board to try all numbers and backtracks with boolean representing whether a solution has been found
+// DFS recursively searches through the board to try all numbers and backtracks with boolean representing whether a solution has been found
 func DFS(cell int) bool {
 	// if cell number past board, then report if valid board
 	if cell >= BoardSize*BoardSize {
@@ -182,38 +183,32 @@ func DFS(cell int) bool {
 	col := cell / BoardSize
 
 	// Saves old domain in case of backtrack
-	oldDomain := CellDomains[row][col]
+	oldDomain := BoardDomains[row][col]
 
-	// Loops through all possible numbers in domain/bitset indexes
-	for k := 0; k < BoardSize; k++ {
+	// Loops through all possible numbers in domain
+	for k := 1; k < BoardSize+1; k++ {
 
-		// Checks if number is in domain
-		if oldDomain&(1<<k) != 0 {
+		if isAllowedNumber(oldDomain, k) {
 
 			// Collapses domain to just that number
-			CellDomains[row][col] = 1 << k
+			BoardDomains[row][col] = disallowAllNumbers()
+			BoardDomains[row][col] = allowNumber(BoardDomains[row][col], k)
 
-			// Creates a slice to store the adjacent cells that have their domains modified (pruned from tree)
+			// Creates a slice to store the adjacent cells that had their domains modified (pruned from tree)
 			pruned := []int{}
 
 			// loops through the same column as the selected cell
 			for adjRow := 0; adjRow != row && adjRow < BoardSize; adjRow++ {
-				// Checks if the number is still in the cell's domain
-				if CellDomains[adjRow][col]&(1<<k) != 0 {
-					// Flips the bit to off
-					CellDomains[adjRow][col] ^= 1 << k
-					// Saves the cell number for backtracking
+				if isAllowedNumber(BoardDomains[adjRow][col], k) {
+					BoardDomains[adjRow][col] = disallowNumber(BoardDomains[adjRow][col], k)
 					pruned = append(pruned, adjRow+col*BoardSize)
 				}
 			}
 
 			// loops through the same row as the selected cell
 			for adjCol := 0; adjCol != col && adjCol < BoardSize; adjCol++ {
-				// Checks if the number is still in the cell's domain
-				if CellDomains[row][adjCol]&(1<<k) != 0 {
-					// Flips the bit to off
-					CellDomains[row][adjCol] ^= 1 << k
-					// Saves the cell number for backtracking
+				if isAllowedNumber(BoardDomains[row][adjCol], k) {
+					BoardDomains[row][adjCol] = disallowNumber(BoardDomains[row][adjCol], k)
 					pruned = append(pruned, row+adjCol*BoardSize)
 				}
 			}
@@ -231,19 +226,18 @@ func DFS(cell int) bool {
 						continue
 					}
 
-					// Checks if the number is still in the cell's domain
-					if CellDomains[i+h_offset][j+v_offset]&(1<<k) != 0 {
-						// Flips the bit to off
-						CellDomains[i+h_offset][j+v_offset] ^= 1 << k
-						// Saves the cell number for backtracking
-						pruned = append(pruned, i+h_offset+(j+v_offset)*BoardSize)
+					// Skip if number not in domain
+					if !isAllowedNumber(BoardDomains[i+h_offset][j+v_offset], k) {
+						continue
 					}
+
+					BoardDomains[i+h_offset][j+v_offset] = disallowNumber(BoardDomains[i+h_offset][j+v_offset], k)
+					pruned = append(pruned, i+h_offset+(j+v_offset)*BoardSize)
 				}
 			}
 
 			// If passes full domain check, then recurse
 			if validateAllDomains() {
-				// Returns true if solution found
 				if DFS(cell + 1) {
 					return true
 				}
@@ -253,12 +247,11 @@ func DFS(cell int) bool {
 			for _, v := range pruned {
 				row_i := v % BoardSize
 				col_i := v / BoardSize
-				// Flips the bit to on
-				CellDomains[row_i][col_i] |= 1 << k
+				BoardDomains[row_i][col_i] = allowNumber(BoardDomains[row_i][col_i], k)
 			}
 
 			// Sets selected cell to its old domain
-			CellDomains[row][col] = oldDomain
+			BoardDomains[row][col] = oldDomain
 
 		}
 	}
@@ -266,12 +259,9 @@ func DFS(cell int) bool {
 }
 
 func SolveSudoku(input [][]int) [][]int {
-	// Initializes cell domains
 	initBoard(input)
 
-	// Starts at cell 0
 	DFS(0)
 
-	// Returns final grid
 	return finalizeBoard()
 }
