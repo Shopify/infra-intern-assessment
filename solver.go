@@ -16,11 +16,9 @@ func SudokuSolver(board [][]int) (bool, [][]int) {
 	// 	fmt.Printf("%.2d:%d,%d\n", item.priority, item.position.row, item.position.column)
 	// }
 
-	pq_ctr := 0
 	var position Position
-	// fmt.Println(board)
-	for pq_ctr < pq.Len() {
-		pq_ctr++
+	for pq.Len() > 0 {
+		// fmt.Println(pq.Len())
 		item := heap.Pop(&pq).(*Item)
 		position = item.position
 		// fmt.Println(position)
