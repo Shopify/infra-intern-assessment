@@ -69,9 +69,11 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	// }
 	var graph map[int]map[int][]int
 
-	pos, remaining = populatePosAndRemaining(puzzle)
+	// pos, remaining = populatePosAndRemaining(puzzle)
 
-	graph = populateGraph(puzzle)
+	// TODO: Sort the remaining map in ascending order by value
+
+	// graph = populateGraph(puzzle)
 
 	printPuzzle(puzzle)
 
@@ -88,20 +90,43 @@ func fillPuzzle(puzzle [][]int, pos map[int][][]int, remaining map[int]int, grap
 	return puzzle
 }
 
-// validNumber checks if n can be placed at the position puzzle[row][col] according to the rules of Sudoku
-func validNumber(puzzle [][]int, row int, col int, n int) bool {
+// validPlacement checks if the number in the position puzzle[row][col] is in a valid spot according to the rules of Sudoku
+func validPlacement(puzzle [][]int, row int, col int) bool {
+	num := puzzle[row][col]
+	// Check if the number is in the same row or column
+	for i := 0; i < len(puzzle); i++ {
+		// Check if any numbers in the same row equal num
+		if puzzle[row][i] == num && i != col {
+			return false
+		}
+		// Check if any numbers in the same column equal num
+		if puzzle[i][col] == num && i != row {
+			return false
+		}
+	}
 
+	// Check if there are any duplicate numbers in the 3x3 box
+	boxRowStart := row / 3 * 3
+	boxColStart := col / 3 * 3
+
+	for i := boxRowStart; i < boxRowStart + 3; i++ {
+		for j := boxColStart; j < boxColStart + 3; j++ {
+			if puzzle[i][j] == num && i != row && j != col {
+				return false
+			}
+		}
+	}
+
+	return true
 }
 
 // populatePosAndRemaining populates the pos and remaining maps with the appropriate values
-func populatePosAndRemaining(puzzle [][]int) (map[int][][]int, map[int]int) {
-
-}
+// func populatePosAndRemaining(puzzle [][]int) (map[int][][]int, map[int]int) {
+// }
 
 // populateGraph populates the graph map with the appropriate values
-func populateGraph(puzzle [][]int) map[int]map[int][]int {
-
-}
+// func populateGraph(puzzle [][]int) map[int]map[int][]int {
+// }
 
 // printPuzzle prints a Sudoku puzzle
 func printPuzzle(puzzle [][]int) {
