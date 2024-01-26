@@ -21,7 +21,8 @@ func getAllPossibilities(board [][]int) map[Position]IntSet {
 }
 
 func getPossibilitiesAt(board [][]int, position Position) IntSet {
-	var possibilities IntSet
+	possibilities := make(IntSet)
+
 	for i := 1; i <= SudokuSize; i++ {
 		possibilities.Add(i)
 	}
