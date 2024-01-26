@@ -22,8 +22,7 @@ func SudokuSolver(board [][]int) (bool, [][]int) {
 				board[position.row][position.column] = value
 				//Remove positions from possibilities
 				delete(allPossibilities, position)
-				updatedPositions := updatePositionPosibilities(allPossibilities, position, value)
-				updatePriorityQueue(allPossibilities, &pq, updatedPositions)
+				updatePosibilitiesAndPriorityQueue(&allPossibilities, &pq, position, value)
 			} else {
 				break
 			}

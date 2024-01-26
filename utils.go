@@ -62,61 +62,43 @@ func initializePriorityQueue(allPossibilities map[Position]IntSet) PriorityQueue
 	return pq
 }
 
-func updatePositionPosibilities(allPossibilities map[Position]IntSet, position Position, value int) []Position {
-	var updatedPositions []Position
+func removeValueFromPossibilities(allPossibilities *map[Position]IntSet, pq *PriorityQueue, position Position, value int) {
+	if possibilities, ok := (*allPossibilities)[position]; ok {
+		if possibilities.Has(value) {
+			possibilities.Delete(value)
+			item := &Item{
+				position: position,
+				priority: possibilities.Size(),
+			}
+			heap.Push(pq, item)
+		}
+	}
+}
 
+func updatePosibilitiesAndPriorityQueue(allPossibilities *map[Position]IntSet, pq *PriorityQueue, position Position, value int) {
 	//Update all possibilities in the row and column
 	for k := 0; k < SudokuSize; k++ {
 		//Remove possibiliy of value in column
 		if k != position.column {
 			updateRowPosition := Position{row: position.row, column: k}
-			if possibilities, ok := allPossibilities[updateRowPosition]; ok {
-				if possibilities.Has(value) {
-					possibilities.Delete(value)
-					updatedPositions = append(updatedPositions, updateRowPosition)
-				}
-			}
+			removeValueFromPossibilities(allPossibilities, pq, updateRowPosition, value)
 		}
 		//Remove possibiliy of value in row
 		if k != position.row {
 			updateColumnPosition := Position{row: k, column: position.column}
-			if possibilities, ok := allPossibilities[updateColumnPosition]; ok {
-				if possibilities.Has(value) {
-					possibilities.Delete(value)
-					updatedPositions = append(updatedPositions, updateColumnPosition)
-				}
-			}
+			removeValueFromPossibilities(allPossibilities, pq, updateColumnPosition, value)
 		}
 	}
 
 	boxRowIndex, boxColumnIndex := (position.row/3)*3, (position.column/3)*3
-
 	//Update possibilities of value within the box
 	for row := boxRowIndex; row < boxRowIndex+SudokuBoxSize; row++ {
 		for column := boxColumnIndex; column < boxColumnIndex+SudokuBoxSize; column++ {
 			if !(position.row == row || position.column == column) {
 				updateBoxPosition := Position{row: row, column: column}
-				if possibilities, ok := allPossibilities[updateBoxPosition]; ok {
-					if possibilities.Has(value) {
-						possibilities.Delete(value)
-						updatedPositions = append(updatedPositions, updateBoxPosition)
-					}
-				}
+				removeValueFromPossibilities(allPossibilities, pq, updateBoxPosition, value)
 			}
 		}
-	}
-
-	return updatedPositions
-}
-
-func updatePriorityQueue(allPossibilities map[Position]IntSet, pq *PriorityQueue, updatedPositions []Position) {
-	for i := 0; i < len(updatedPositions); i++ {
-		possibilities := allPossibilities[updatedPositions[i]]
-		item := &Item{
-			position: updatedPositions[i],
-			priority: possibilities.Size(),
-		}
-		heap.Push(pq, item)
 	}
 }
 
