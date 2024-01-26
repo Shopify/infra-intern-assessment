@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/big"
 	"sort"
 )
@@ -13,7 +12,6 @@ type SudokuNum struct {
 	occurs            big.Int
 	conflicts         big.Int
 	possibleTemplates []big.Int
-	validIndex        int
 	symbol            uint8
 }
 
@@ -22,32 +20,24 @@ func SolveSudoku(input [][]int) [][]int {
 	var freeGrid big.Int
 	var templates []big.Int
 
-	n := generateSudokuTemplates(&baseTemplate, &freeGrid, &templates, 0, 0)
+	// Generate the 46656 possible sudoku templates
+	generateSudokuTemplates(&baseTemplate, &freeGrid, &templates, 0, 0)
 
-	fmt.Printf("Generated %d templates\n", n)
-
-	inputVec := vectorize(input)
-	inputNums := vecToBits(inputVec)
-
-	numOps := 1
+	sudokuVec := vectorize(input)
+	inputNums := vecToBits(sudokuVec)
 
 	for i := range inputNums {
 		findValidTemplates(templates, &inputNums[i])
-		fmt.Printf("Found %d valid templates for symbol %d\n", len(inputNums[i].possibleTemplates), inputNums[i].symbol)
-		numOps *= len(inputNums[i].possibleTemplates)
 	}
-
-	fmt.Printf("Max number of backtracking operations: %d\n", numOps)
 
 	sort.Slice(inputNums, func(i, j int) bool {
 		return len(inputNums[i].possibleTemplates) < len(inputNums[j].possibleTemplates)
 	})
 
 	freeGrid.SetInt64(0)
-	solvedVec := make([]uint8, 81)
-	fmt.Println(dfsBacktrack(inputNums, &freeGrid, &solvedVec, 0))
+	dfsBacktrack(inputNums, &freeGrid, &sudokuVec, 0)
 
-	return sudokurize(solvedVec)
+	return sudokurize(sudokuVec)
 }
 
 func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec *[]uint8, index int) bool {
@@ -57,18 +47,13 @@ func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec *[]uint8, inde
 
 	num := input[index]
 
-	fmt.Println(len(num.possibleTemplates))
-
-	for j, template := range num.possibleTemplates {
+	for _, template := range num.possibleTemplates {
 		t := new(big.Int).And(&template, freeGrid)
-
-		fmt.Printf("Trying template %d for symbol %d\n", j, num.symbol)
 
 		if len(t.Bits()) == 0 {
 			freeGrid.Xor(freeGrid, &template)
 			rtn := dfsBacktrack(input, freeGrid, solvedVec, index+1)
 			if rtn {
-				num.validIndex = j
 				insertBitsToVec(template, num.symbol, solvedVec)
 				return true
 			} else {
@@ -113,7 +98,6 @@ func vecToBits(vec []uint8) []SudokuNum {
 }
 
 func insertBitsToVec(bits big.Int, num uint8, input *[]uint8) {
-	fmt.Println("Inserting bits")
 	for i := 0; i < 81; i++ {
 		if bits.Bit(i) == 1 {
 			(*input)[i] = num
@@ -189,15 +173,5 @@ func setCell(grid *big.Int, freeGrid *big.Int, pos int) {
 		for j := 0; j < 3; j++ {
 			freeGrid.SetBit(freeGrid, (boxRow*3+i)*9+(boxCol*3+j), 1)
 		}
-	}
-}
-
-func printSudoku(input big.Int) {
-	fmt.Println()
-	for i := 0; i < 9; i++ {
-		for j := 0; j < 9; j++ {
-			fmt.Printf("%d ", input.Bit(i*9+j))
-		}
-		fmt.Println()
 	}
 }
