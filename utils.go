@@ -77,10 +77,10 @@ func updatePositionPosibilities(allPossibilities map[Position]IntSet, position P
 	var updatedPositions []Position
 
 	//Update all possibilities in the row and column
-	for i := 0; i < SudokuSize; i++ {
+	for k := 0; k < SudokuSize; k++ {
 		//Remove possibiliy of value in column
-		if i != position.column {
-			updateRowPosition := Position{row: position.row, column: i}
+		if k != position.column {
+			updateRowPosition := Position{row: position.row, column: k}
 			if possibilities, ok := allPossibilities[updateRowPosition]; ok {
 				if possibilities.Has(value) {
 					possibilities.Delete(value)
@@ -89,8 +89,8 @@ func updatePositionPosibilities(allPossibilities map[Position]IntSet, position P
 			}
 		}
 		//Remove possibiliy of value in row
-		if i != position.row {
-			updateColumnPosition := Position{row: i, column: position.column}
+		if k != position.row {
+			updateColumnPosition := Position{row: k, column: position.column}
 			if possibilities, ok := allPossibilities[updateColumnPosition]; ok {
 				if possibilities.Has(value) {
 					possibilities.Delete(value)
@@ -103,8 +103,8 @@ func updatePositionPosibilities(allPossibilities map[Position]IntSet, position P
 	boxRowIndex, boxColumnIndex := (position.row/3)*3, (position.column/3)*3
 
 	//Update possibilities of value within the box
-	for row := boxRowIndex; row < SudokuBoxSize; row++ {
-		for column := boxColumnIndex; column < SudokuBoxSize; column++ {
+	for row := boxRowIndex; row < boxRowIndex+SudokuBoxSize; row++ {
+		for column := boxColumnIndex; column < boxColumnIndex+SudokuBoxSize; column++ {
 			if !(position.row == row || position.column == column) {
 				updateBoxPosition := Position{row: row, column: column}
 				if possibilities, ok := allPossibilities[updateBoxPosition]; ok {
@@ -153,37 +153,4 @@ func deepCopy(board [][]int) [][]int {
 		copy(duplicate[i], board[i])
 	}
 	return duplicate
-}
-
-func checkPuzzle(p [][]int) bool {
-	var rows [9][10]int
-	var col [9][10]int
-	var grid [3][3][10]int
-
-	for i := 0; i < 9; i++ {
-		for j := 0; j < 9; j++ {
-			var num = p[i][j]
-			if num <= 0 || num > 9 {
-				return false
-			}
-
-			if rows[i][num] < 1 {
-				rows[i][num] = rows[i][num] + 1
-			} else {
-				return false
-			}
-			if col[j][num] < 1 {
-				col[j][num] = col[j][num] + 1
-			} else {
-				return false
-			}
-
-			if grid[i/3][j/3][num] < 1 {
-				grid[i/3][j/3][num] = grid[i/3][j/3][num] + 1
-			} else {
-				return false
-			}
-		}
-	}
-	return true
 }

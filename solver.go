@@ -54,7 +54,7 @@ func SudokuSolver(board [][]int) (bool, [][]int) {
 		}
 	}
 
-	if checkPuzzle(board) {
+	if isBoardSolved(board) {
 		return true, board
 	}
 
