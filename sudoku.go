@@ -59,9 +59,9 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	posns, remaining = createPosAndRem(puzzle)
 	graph = createGraph(puzzle, posns)
 
-	fmt.Println("Solving the following puzzle:")
-	printPuzzle(puzzle)
-	fmt.Println()
+	// fmt.Println("Solving the following puzzle:")
+	// printPuzzle(puzzle)
+	// fmt.Println()
 
 	// We want to start solving with the numbers that have the least remaining occurrences,
 	// which will make the algorithm more efficient, so we sort the remaining map by its values
@@ -71,13 +71,13 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	rows := getRowsOfK(graph, keysSorted[0])
 
 	// Run the actual algorithm
-	solved := fillPuzzle(puzzle, graph, 0, keysSorted, 0, rows)
-	if solved {
-		fmt.Println("Solved!")
-		printPuzzle(puzzle)
-	} else {
-		fmt.Println("No solution found.")
-	}
+	fillPuzzle(puzzle, graph, 0, keysSorted, 0, rows)
+	// if solved {
+	// 	fmt.Println("Solved!")
+	// 	printPuzzle(puzzle)
+	// } else {
+	// 	fmt.Println("No solution found.")
+	// }
 	
 	return puzzle
 }
@@ -269,20 +269,4 @@ func printPuzzle(puzzle [][]int) {
 		}
 		fmt.Println()
 	}
-}
-
-func main() {
-	var puzzle = [][]int{
-		{5, 3, 0, 0, 7, 0, 0, 0, 0},
-		{6, 0, 0, 1, 9, 5, 0, 0, 0},
-		{0, 9, 8, 0, 0, 0, 0, 6, 0},
-		{8, 0, 0, 0, 6, 0, 0, 0, 3},
-		{4, 0, 0, 8, 0, 3, 0, 0, 1},
-		{7, 0, 0, 0, 2, 0, 0, 0, 6},
-		{0, 6, 0, 0, 0, 0, 2, 8, 0},
-		{0, 0, 0, 4, 1, 9, 0, 0, 5},
-		{0, 0, 0, 0, 8, 0, 0, 7, 9},
-	}
-
-	SolveSudoku(puzzle)
 }
