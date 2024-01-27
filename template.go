@@ -9,9 +9,23 @@ import (
 	"os"
 )
 
-// GenerateSudokuTemplates returns an int which is the number of elements appended to the templates slice.
-// It generates all possible patterns a digit from 1 to 9 can be placed inside a traditional Sudoku grid, which is 46656 possible ways.
-// Each template is a bit vector representation of a Sudoku grid where 1 represents a valid position and 0 represents an empty cell.
+func main() {
+	var baseTemplate big.Int
+	var freeGrid big.Int
+	var templates []big.Int
+
+	fmt.Println("Generating Sudoku templates...")
+
+	n := GenerateSudokuTemplates(&baseTemplate, &freeGrid, &templates, 0, 0)
+	SaveTemplatesToFile(templates, "templates.txt")
+
+	fmt.Printf("Generated %d Sudoku templates!\n", n)
+}
+
+// GenerateSudokuTemplates returns the number of elements appended to the templates slice.
+// It generates all possible patterns a digit from 1 to 9 can be placed inside a traditional Sudoku grid,
+// which is 46656 possible ways. Each template is a bit vector representation of a Sudoku grid
+// where 1 represents a valid position and 0 represents an empty cell.
 func GenerateSudokuTemplates(currGrid *big.Int, freeGrid *big.Int, templates *[]big.Int, row int, count int) int {
 	if row >= 9 {
 		*templates = append(*templates, *new(big.Int).Set(currGrid))
@@ -62,7 +76,7 @@ func setCell(grid *big.Int, freeGrid *big.Int, pos int) {
 }
 
 // SaveTemplatesToFile saves the value of each bit vector template
-// encoded in base64 into a text file specified by filename.
+// encoded in base64 and saved to a text file specified by filename.
 func SaveTemplatesToFile(templates []big.Int, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {

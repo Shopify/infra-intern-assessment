@@ -25,25 +25,17 @@ func SolveSudoku(input [][]int) [][]int {
 	var wg sync.WaitGroup
 	var freeGrid big.Int
 	var templates []big.Int
+	sudokuVec := vectorize(input)
+	if len(sudokuVec) != 81 {
+		panic("Invalid Sudoku puzzle")
+	}
+	inputNums := vecToBits(sudokuVec)
 
 	// ~25000000 ns/op faster to read from file (on average)
 	templates, err := ReadTemplatesFromEmbed(templateFile)
 	if err != nil {
 		panic(err)
 	}
-	// Uncomment the following to generate the 46656 possible templates instead
-	/*
-		// var baseTemplate big.Int
-		// GenerateSudokuTemplates(&baseTemplate, &freeGrid, &templates, 0, 0)
-		// SaveTemplatesToFile(templates, "templates.txt")
-		// freeGrid.SetInt64(0)
-	*/
-
-	sudokuVec := vectorize(input)
-	if len(sudokuVec) != 81 {
-		panic("Invalid Sudoku puzzle")
-	}
-	inputNums := vecToBits(sudokuVec)
 
 	// - Since every goroutine is exclusively responsible
 	//   for modifying one SudokuNum, atomic access is not necessary
