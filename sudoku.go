@@ -37,8 +37,10 @@ func SolveSudoku(input [][]int) [][]int {
 		// SaveTemplatesToFile(templates, "templates.txt")
 		// freeGrid.SetInt64(0)
 	*/
-
 	sudokuVec := vectorize(input)
+	if len(sudokuVec) != 81 {
+		panic("Invalid Sudoku puzzle")
+	}
 	inputNums := vecToBits(sudokuVec)
 
 	// - Since every goroutine is exclusively responsible
@@ -50,12 +52,12 @@ func SolveSudoku(input [][]int) [][]int {
 	}
 	wg.Wait()
 
-	dfsBacktrack(inputNums, &freeGrid, &sudokuVec, 0)
+	dfsBacktrack(inputNums, &freeGrid, sudokuVec, 0)
 
 	return sudokurize(sudokuVec)
 }
 
-func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec *[]uint8, index int) bool {
+func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec []uint8, index int) bool {
 	if index >= 9 {
 		return true
 	}
@@ -92,6 +94,22 @@ func findValidTemplates(templates []big.Int, input *SudokuNum, wg *sync.WaitGrou
 	}
 }
 
+// Below are helper functions for converting from 2d representation of Sudoku puzzle to a bit vector
+
+// vectorize returns a slice of uint8's which represents a 1d vector representation of a Sudoku puzzle.
+// It takes a 2d representation of a Sudoku puzzle and converts it to a 1d vector representation.
+func vectorize(input [][]int) []uint8 {
+	var result []uint8
+	for _, arr := range input {
+		for _, n := range arr {
+			result = append(result, uint8(n))
+		}
+	}
+	return result
+}
+
+// vecToBits returns a slice of 9 SudokuNum's. one for each digit of a 9x9 Sudoku puzzle.
+// It coverts a 1d vector representation of a Sudoku puzzle to a bit vector representation.
 func vecToBits(vec []uint8) []SudokuNum {
 	result := make([]SudokuNum, 9)
 
@@ -111,24 +129,18 @@ func vecToBits(vec []uint8) []SudokuNum {
 	return result
 }
 
-func insertBitsToVec(bits big.Int, num uint8, input *[]uint8) {
+// insertBitsToVec inserts the positions of the 1's in bits into the respective position.
+// of the input vector representation of a Sudoku puzzle.
+func insertBitsToVec(bits big.Int, num uint8, input []uint8) {
 	for i := 0; i < 81; i++ {
 		if bits.Bit(i) == 1 {
-			(*input)[i] = num
+			input[i] = num
 		}
 	}
 }
 
-func vectorize(input [][]int) []uint8 {
-	var result []uint8
-	for _, arr := range input {
-		for _, n := range arr {
-			result = append(result, uint8(n))
-		}
-	}
-	return result
-}
-
+// sudokurize returns a 2d array representation of a Sudoku puzzle.
+// Converts an input vector representation of a Sudoku puzzle to a 2d representation.
 func sudokurize(input []uint8) [][]int {
 	var result [][]int
 	for i := 0; i < 9; i++ {

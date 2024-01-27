@@ -8,10 +8,12 @@ import (
 	"os"
 )
 
+// GenerateSudokuTemplates returns an int which is number of elements appended to the templates slice.
+// It generates all possible patterns a digit from 1 to 9 can be placed in a traditional Sudoku grid, which is 46656.
+// Each template is a bit vector representation of a Sudoku grid where 1 represents a valid position and 0 represents an empty cell.
 func GenerateSudokuTemplates(currGrid *big.Int, freeGrid *big.Int, templates *[]big.Int, row int, count int) int {
 	if row >= 9 {
-		newTemplate := new(big.Int).Set(currGrid)
-		*templates = append(*templates, *newTemplate)
+		*templates = append(*templates, *new(big.Int).Set(currGrid))
 		return count + 1
 	}
 
@@ -30,6 +32,8 @@ func GenerateSudokuTemplates(currGrid *big.Int, freeGrid *big.Int, templates *[]
 	return count
 }
 
+// setCell modifies a bit vector representation of a Sudoku grid by setting the pos (from 0-80) and then
+// updates the freeGrid bit vector to reflect the new conflicts introduced by setting the cell.
 func setCell(grid *big.Int, freeGrid *big.Int, pos int) {
 	// Set cell
 	grid.SetBit(grid, pos, 1)
@@ -56,6 +60,8 @@ func setCell(grid *big.Int, freeGrid *big.Int, pos int) {
 	}
 }
 
+// SaveTemplatesToFile saves the decimal value of each bit vector template
+// into a text file specified by filename.
 func SaveTemplatesToFile(templates []big.Int, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
@@ -76,6 +82,9 @@ func SaveTemplatesToFile(templates []big.Int, filename string) error {
 	return nil
 }
 
+// ReadTemplatesFromFile reads from an embed.FS file and returns a slice of big.Int's
+// which represents a template of a Sudoku grid It reads every decimal value as a line
+// which is then converted into a bit vector.
 func ReadTemplatesFromEmbed(filename embed.FS) ([]big.Int, error) {
 	file, err := filename.Open("templates.txt")
 	if err != nil {
