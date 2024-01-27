@@ -63,7 +63,7 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	printPuzzle(puzzle)
 	fmt.Println()
 
-	// We want to start solving with the numbers with the least remaining occurrences first,
+	// We want to start solving with the numbers that have the least remaining occurrences,
 	// which will make the algorithm more efficient, so we sort the remaining map by its values
 	keysSorted := keysSortedByValue(remaining)
 
@@ -83,39 +83,47 @@ func SolveSudoku(puzzle [][]int) [][]int {
 }
 
 // fillPuzzle fills in the Sudoku puzzle with the correct numbers using a backtracking algorithm
-// with crosshatching.
-// It returns true if a solution is found and false otherwise.
+// with crosshatching. It returns true if a solution is found, and false otherwise.
+//
+// k is the index of the current number we're trying to place in the puzzle. keys is a slice of the
+// numbers to be placed in the puzzle. The order of the numbers in this slice determines the order
+// in which the numbers are placed. Thus, keys[k] is the current number we're trying to place. r is
+// the index of the current row we're trying to fill in the puzzle. rows is a slice of the row
+// numbers for the current number we're trying to place. Thus, rows[r] is the current row we're
+// trying to fill.
 func fillPuzzle(puzzle [][]int, graph map[int]map[int][]int, k int,
 				keys []int, r int, rows []int) bool {
-	// For the current number (k) we're trying to solve for, we iterate over each column of each
-	// row in the graph
+	// For the current number (keys[k]) we're trying to solve for, we iterate over each column of
+	// each row in the graph
 	for _, c := range graph[keys[k]][rows[r]] {
 		// If the cell is already filled, skip to the next cell
 		if puzzle[rows[r]][c] != 0 {
 			continue
 		}
 
-		// Place k in the current cell and then check if it's allowed to be there
+		// Place the current number in the current cell and then check if it's allowed to be there
 		puzzle[rows[r]][c] = keys[k]
 		if validPlacement(puzzle, rows[r], c) {
-			// If we're not at the end of the current row, recursively call fillPuzzle for the
+			// If we're not at the end of the current row, recursively call fillPuzzle on the
 			// next row
 			if r < len(rows) - 1 {
 				if fillPuzzle(puzzle, graph, k, keys, r+1, rows) {
 					return true
 				} else {
-					// If placing k in the current cell didn't lead to a solution, remove it
+					// If placing keys[k] in the current cell didn't lead to a solution, remove it
+					// and try the next cell
 					puzzle[rows[r]][c] = 0
 					continue
 				}
 			} else {
-				// If we're at the end of the current row (r), recursively call fillPuzzle on the
-				// next key (assuming there are more keys left)
+				// If we're at the end of the current row (rows[r]), recursively call fillPuzzle on
+				// the next key (assuming there are more keys left)
 				if k < len(keys) - 1 {
 					if fillPuzzle(puzzle, graph, k+1, keys, 0, getRowsOfK(graph, keys[k+1])) {
 						return true
 					} else {
-						// If placing k in the current cell didn't lead to a solution, remove it
+						// If placing keys[k] in the current cell didn't lead to a solution, remove
+						// it and try the next cell
 						puzzle[rows[r]][c] = 0
 						continue
 					}
@@ -124,8 +132,8 @@ func fillPuzzle(puzzle [][]int, graph map[int]map[int][]int, k int,
 				return true
 			}
 		}
-		// If k can't be placed in the current cell, remove it (i.e., backtrack) by setting it
-		// back to 0
+		// If keys[k] can't be placed in the current cell, remove it (i.e., backtrack) by setting
+		// it back to 0
 		puzzle[rows[r]][c] = 0
 	}
 	// If we've tried every possible placement for the current key and none have led to a solution,
@@ -179,7 +187,7 @@ func keysSortedByValue(m map[int]int) []int {
 	return keys
 }
 
-// getRowsOfK returns a slice of the rows of the number k in the graph.
+// getRowsOfK returns a slice of the rows of the index k in the graph.
 func getRowsOfK(graph map[int]map[int][]int, k int) []int {
 	rows := make([]int, 0, len(graph[k]))
 	for r := range graph[k] {
