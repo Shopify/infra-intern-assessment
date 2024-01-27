@@ -35,7 +35,8 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	// }
 	var remaining map[int]int
 
-	// Graph representing the potential positions for each number, stored in the following format:
+	// Graph representing the potential positions for each number (using a cross-hatching
+	// technique), stored in the following format:
 	// Format:
 	// {
 	// 	number: {
@@ -80,6 +81,91 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	// }
 	
 	return puzzle
+}
+
+// createPosAndRem returns maps which contain the positions and remaining counts of each number in
+// the puzzle.
+func createPosAndRem(puzzle [][]int) (map[int][][]int, map[int]int) {
+	posns := make(map[int][][]int)
+	rem := make(map[int]int)
+
+	// Initialize pos and rem
+	for i := 1; i <= len(puzzle); i++ {
+		posns[i] = [][]int{}
+		rem[i] = 9
+	}
+
+	for r := 0; r < len(puzzle); r++ {
+		for c := 0; c < len(puzzle); c++ {
+			if puzzle[r][c] != 0 {  // Ignore 0s
+				// Add the position of the number to the pos map
+				posns[puzzle[r][c]] = append(posns[puzzle[r][c]], []int{r, c})
+				// Decrement the remaining count of the number
+				rem[puzzle[r][c]]--
+			}
+		}
+	}
+
+	return posns, rem
+}
+
+// createGraph returns a map which contains potential placements for each number, determined using
+// cross-hatching.
+func createGraph(puzzle [][]int, posns map[int][][]int) map[int]map[int][]int {
+	graph := make(map[int]map[int][]int)
+
+	// Iterate over each number and its positions in the puzzle
+	for k, v := range posns {
+		graph[k] = make(map[int][]int)
+
+		// Initialize slices to keep track of which rows and columns already have the number k
+		rows := make([]bool, len(puzzle))
+		cols := make([]bool, len(puzzle))
+
+		// Mark the rows and columns which already have the number k
+		for _, coord := range v {
+			rows[coord[0]] = true
+			cols[coord[1]] = true
+		}
+
+		// Iterate over each cell in the puzzle
+		for r := 0; r < len(puzzle); r++ {
+			for c := 0; c < len(puzzle); c++ {
+                // If the current row and column don't have the number and the cell is empty
+                // (indicated by 0), store the cell in the graph
+				if !rows[r] && !cols[c] && puzzle[r][c] == 0 {
+					graph[k][r] = append(graph[k][r], c)
+				}
+			}
+		}
+	}
+
+	return graph
+}
+
+// keysSortedByValue returns a slice of the keys of the map m sorted by their values.
+func keysSortedByValue(m map[int]int) []int {
+	// Create a slice of keys from the map
+	keys := make([]int, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	// Sort the slice of keys based on their values in the map
+	sort.Slice(keys, func(i, j int) bool {
+		return m[keys[i]] < m[keys[j]]
+	})
+
+	return keys
+}
+
+// getRowsOfK returns a slice of the rows of the index k in the graph.
+func getRowsOfK(graph map[int]map[int][]int, k int) []int {
+	rows := make([]int, 0, len(graph[k]))
+	for r := range graph[k] {
+		rows = append(rows, r)
+	}
+	return rows
 }
 
 // fillPuzzle fills in the Sudoku puzzle with the correct numbers using a backtracking algorithm
@@ -169,90 +255,6 @@ func validPlacement(puzzle [][]int, row int, col int) bool {
 	}
 
 	return true
-}
-
-// keysSortedByValue returns a slice of the keys of the map m sorted by their values.
-func keysSortedByValue(m map[int]int) []int {
-	// Create a slice of keys from the map
-	keys := make([]int, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-
-	// Sort the slice of keys based on their values in the map
-	sort.Slice(keys, func(i, j int) bool {
-		return m[keys[i]] < m[keys[j]]
-	})
-
-	return keys
-}
-
-// getRowsOfK returns a slice of the rows of the index k in the graph.
-func getRowsOfK(graph map[int]map[int][]int, k int) []int {
-	rows := make([]int, 0, len(graph[k]))
-	for r := range graph[k] {
-		rows = append(rows, r)
-	}
-	return rows
-}
-
-// createPosAndRem returns maps which contain the positions and remaining counts of each number in
-// the puzzle.
-func createPosAndRem(puzzle [][]int) (map[int][][]int, map[int]int) {
-	posns := make(map[int][][]int)
-	rem := make(map[int]int)
-
-	// Initialize pos and rem
-	for i := 1; i <= len(puzzle); i++ {
-		posns[i] = [][]int{}
-		rem[i] = 9
-	}
-
-	for r := 0; r < len(puzzle); r++ {
-		for c := 0; c < len(puzzle); c++ {
-			if puzzle[r][c] != 0 {  // Ignore 0s
-				// Add the position of the number to the pos map
-				posns[puzzle[r][c]] = append(posns[puzzle[r][c]], []int{r, c})
-				// Decrement the remaining count of the number
-				rem[puzzle[r][c]]--
-			}
-		}
-	}
-
-	return posns, rem
-}
-
-// createGraph returns a map which contains potential placements for each number.
-func createGraph(puzzle [][]int, posns map[int][][]int) map[int]map[int][]int {
-	graph := make(map[int]map[int][]int)
-
-	// Iterate over each number and its positions in the puzzle
-	for k, v := range posns {
-		graph[k] = make(map[int][]int)
-
-		// Initialize slices to keep track of which rows and columns already have the number k
-		rows := make([]bool, len(puzzle))
-		cols := make([]bool, len(puzzle))
-
-		// Mark the rows and columns which already have the number k
-		for _, coord := range v {
-			rows[coord[0]] = true
-			cols[coord[1]] = true
-		}
-
-		// Iterate over each cell in the puzzle
-		for r := 0; r < len(puzzle); r++ {
-			for c := 0; c < len(puzzle); c++ {
-                // If the current row and column don't have the number and the cell is empty
-                // (indicated by 0), store the cell in the graph
-				if !rows[r] && !cols[c] && puzzle[r][c] == 0 {
-					graph[k][r] = append(graph[k][r], c)
-				}
-			}
-		}
-	}
-
-	return graph
 }
 
 // printPuzzle prints a Sudoku puzzle.
