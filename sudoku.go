@@ -8,20 +8,10 @@ import (
 // 	- document functions
 // 	- write comments explaining code
 
-var puzzle = [][]int{
-	{5, 3, 0, 0, 7, 0, 0, 0, 0},
-	{6, 0, 0, 1, 9, 5, 0, 0, 0},
-	{0, 9, 8, 0, 0, 0, 0, 6, 0},
-	{8, 0, 0, 0, 6, 0, 0, 0, 3},
-	{4, 0, 0, 8, 0, 3, 0, 0, 1},
-	{7, 0, 0, 0, 2, 0, 0, 0, 6},
-	{0, 6, 0, 0, 0, 0, 2, 8, 0},
-	{0, 0, 0, 4, 1, 9, 0, 0, 5},
-	{0, 0, 0, 0, 8, 0, 0, 7, 9},
-}
-
 // SolveSudoku takes a Sudoku puzzle and returns the solved puzzle
 func SolveSudoku(puzzle [][]int) [][]int {
+	// The Sudoku puzzle is transformed into convenient data structures (as seen below) to make solving easier
+
 	// Contains positions of all numbers 1-9, in the following format:
 	// {
 	// 	number: [[row, col], [row, col], ...],
@@ -48,7 +38,7 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	// }
 	var remaining map[int]int
 
-	// Graph representing the valid positions for each number, stored in the following format:
+	// Graph representing the potential positions for each number, stored in the following format:
 	// Format:
 	// {
 	// 	number: {
@@ -72,6 +62,8 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	// pos, remaining = populatePosAndRemaining(puzzle)
 
 	// TODO: Sort the remaining map in ascending order by value
+	// We want to fill in the numbers with the least remaining occurrences first,
+	// which will make the algorithm more efficient
 
 	// graph = populateGraph(puzzle)
 
@@ -96,7 +88,6 @@ func fillPuzzle(puzzle [][]int, pos map[int][][]int, remaining map[int]int,
 // according to the rules of Sudoku
 func validPlacement(puzzle [][]int, row int, col int) bool {
 	num := puzzle[row][col]
-	// Check if the number is in the same row or column
 	for i := 0; i < len(puzzle); i++ {
 		// Check if any numbers in the same row equal num
 		if puzzle[row][i] == num && i != col {
@@ -123,8 +114,8 @@ func validPlacement(puzzle [][]int, row int, col int) bool {
 	return true
 }
 
-// createPosAndRem returns the position and remaining maps which contain the positions and
-// remaining counts of each number in the puzzle
+// createPosAndRem returns maps which contain the positions and remaining counts of each number in
+// the puzzle
 func createPosAndRem(puzzle [][]int) (map[int][][]int, map[int]int) {
 	pos := make(map[int][][]int)
 	rem := make(map[int]int)
@@ -149,9 +140,38 @@ func createPosAndRem(puzzle [][]int) (map[int][][]int, map[int]int) {
 	return pos, rem
 }
 
-// createGraph creates the graph map with the appropriate values
-// func createGraph(puzzle [][]int) map[int]map[int][]int {
-// }
+// createGraph returns a map which contains potential placements for each number
+func createGraph(puzzle [][]int, pos map[int][][]int) map[int]map[int][]int {
+	graph := make(map[int]map[int][]int)
+
+	// Iterate over each number and its positions in the puzzle
+	for k, v := range pos {
+		graph[k] = make(map[int][]int)
+
+		// Initialize slices to keep track of which rows and columns already have the number k
+		rows := make([]bool, len(puzzle))
+		cols := make([]bool, len(puzzle))
+
+		// Mark the rows and columns which already have the number k
+		for _, coord := range v {
+			rows[coord[0]] = true
+			cols[coord[1]] = true
+		}
+
+		// Iterate over each cell in the puzzle
+		for r := 0; r < len(puzzle); r++ {
+			for c := 0; c < len(puzzle); c++ {
+                // If the current row and column don't have the number and the cell is empty
+                // (indicated by 0), store the cell in the graph
+				if !rows[r] && !cols[c] && puzzle[r][c] == 0 {
+					graph[k][r] = append(graph[k][r], c)
+				}
+			}
+		}
+	}
+
+	return graph
+}
 
 // printPuzzle prints a Sudoku puzzle
 func printPuzzle(puzzle [][]int) {
@@ -164,5 +184,17 @@ func printPuzzle(puzzle [][]int) {
 }
 
 func main() {
+	var puzzle = [][]int{
+		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+
 	SolveSudoku(puzzle)
 }
