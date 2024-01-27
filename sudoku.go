@@ -5,11 +5,7 @@ import (
 	"sort"
 )
 
-// TODO:
-// 	- document functions
-// 	- write comments explaining code
-
-// SolveSudoku takes a Sudoku puzzle and returns the solved puzzle
+// SolveSudoku takes a Sudoku puzzle and returns the solved puzzle.
 func SolveSudoku(puzzle [][]int) [][]int {
 	// The Sudoku puzzle is transformed into convenient data structures (as seen below) to make solving easier
 
@@ -63,36 +59,82 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	posns, remaining = createPosAndRem(puzzle)
 	graph = createGraph(puzzle, posns)
 
+	fmt.Println("Solving the following puzzle:")
 	printPuzzle(puzzle)
+	fmt.Println()
 
-	// We want to fill in the numbers with the least remaining occurrences first, which will make
-	// the algorithm more efficient, so we sort the remaining map by its values
+	// We want to start solving with the numbers with the least remaining occurrences first,
+	// which will make the algorithm more efficient, so we sort the remaining map by its values
 	keysSorted := keysSortedByValue(remaining)
 
 	// Create a slice of the rows of the first key in the graph
-	rows := make([]int, 0, len(graph[0]))
-	for k := range graph[0] {
-		rows = append(rows, k)
-	}
+	rows := getRowsOfK(graph, keysSorted[0])
 
 	// Run the actual algorithm
-	solvedPuzzle := fillPuzzle(puzzle, graph, 0, keysSorted, 0, rows)
-
-	// printPuzzle(solvedPuzzle)
+	solved := fillPuzzle(puzzle, graph, 0, keysSorted, 0, rows)
+	if solved {
+		fmt.Println("Solved!")
+		printPuzzle(puzzle)
+	} else {
+		fmt.Println("No solution found.")
+	}
 	
-	return solvedPuzzle
-}
-
-// fillPuzzle fills in the Sudoku puzzle with the correct numbers using a backtracking algorithm
-// with crosshatching
-func fillPuzzle(puzzle [][]int, graph map[int]map[int][]int, k int, keys []int, r int,
-				rows []int) [][]int {
-	// Add logic
 	return puzzle
 }
 
+// fillPuzzle fills in the Sudoku puzzle with the correct numbers using a backtracking algorithm
+// with crosshatching.
+// It returns true if a solution is found and false otherwise.
+func fillPuzzle(puzzle [][]int, graph map[int]map[int][]int, k int,
+				keys []int, r int, rows []int) bool {
+	// For the current number (k) we're trying to solve for, we iterate over each column of each
+	// row in the graph
+	for _, c := range graph[keys[k]][rows[r]] {
+		// If the cell is already filled, skip to the next cell
+		if puzzle[rows[r]][c] != 0 {
+			continue
+		}
+
+		// Place k in the current cell and then check if it's allowed to be there
+		puzzle[rows[r]][c] = keys[k]
+		if validPlacement(puzzle, rows[r], c) {
+			// If we're not at the end of the current row, recursively call fillPuzzle for the
+			// next row
+			if r < len(rows) - 1 {
+				if fillPuzzle(puzzle, graph, k, keys, r+1, rows) {
+					return true
+				} else {
+					// If placing k in the current cell didn't lead to a solution, remove it
+					puzzle[rows[r]][c] = 0
+					continue
+				}
+			} else {
+				// If we're at the end of the current row (r), recursively call fillPuzzle on the
+				// next key (assuming there are more keys left)
+				if k < len(keys) - 1 {
+					if fillPuzzle(puzzle, graph, k+1, keys, 0, getRowsOfK(graph, keys[k+1])) {
+						return true
+					} else {
+						// If placing k in the current cell didn't lead to a solution, remove it
+						puzzle[rows[r]][c] = 0
+						continue
+					}
+				}
+				// If there are no more keys or rows left, we've found a solution
+				return true
+			}
+		}
+		// If k can't be placed in the current cell, remove it (i.e., backtrack) by setting it
+		// back to 0
+		puzzle[rows[r]][c] = 0
+	}
+	// If we've tried every possible placement for the current key and none have led to a solution,
+	// then there is no solution
+	return false
+}
+
 // validPlacement checks if the number in the position puzzle[row][col] is in a valid spot
-// according to the rules of Sudoku
+// according to the rules of Sudoku.
 func validPlacement(puzzle [][]int, row int, col int) bool {
 	num := puzzle[row][col]
 	for i := 0; i < len(puzzle); i++ {
@@ -121,7 +163,7 @@ func validPlacement(puzzle [][]int, row int, col int) bool {
 	return true
 }
 
-// keysSortedByValue returns a slice of the keys of the map m sorted by their values
+// keysSortedByValue returns a slice of the keys of the map m sorted by their values.
 func keysSortedByValue(m map[int]int) []int {
 	// Create a slice of keys from the map
 	keys := make([]int, 0, len(m))
@@ -137,8 +179,17 @@ func keysSortedByValue(m map[int]int) []int {
 	return keys
 }
 
+// getRowsOfK returns a slice of the rows of the number k in the graph.
+func getRowsOfK(graph map[int]map[int][]int, k int) []int {
+	rows := make([]int, 0, len(graph[k]))
+	for r := range graph[k] {
+		rows = append(rows, r)
+	}
+	return rows
+}
+
 // createPosAndRem returns maps which contain the positions and remaining counts of each number in
-// the puzzle
+// the puzzle.
 func createPosAndRem(puzzle [][]int) (map[int][][]int, map[int]int) {
 	posns := make(map[int][][]int)
 	rem := make(map[int]int)
@@ -163,7 +214,7 @@ func createPosAndRem(puzzle [][]int) (map[int][][]int, map[int]int) {
 	return posns, rem
 }
 
-// createGraph returns a map which contains potential placements for each number
+// createGraph returns a map which contains potential placements for each number.
 func createGraph(puzzle [][]int, posns map[int][][]int) map[int]map[int][]int {
 	graph := make(map[int]map[int][]int)
 
@@ -196,7 +247,7 @@ func createGraph(puzzle [][]int, posns map[int][][]int) map[int]map[int][]int {
 	return graph
 }
 
-// printPuzzle prints a Sudoku puzzle
+// printPuzzle prints a Sudoku puzzle.
 func printPuzzle(puzzle [][]int) {
 	for row := 0; row < len(puzzle); row++ {
 		if row%3 == 0 && row != 0 {
