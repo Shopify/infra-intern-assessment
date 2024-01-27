@@ -1,13 +1,18 @@
 package main
 
 import (
+	"embed"
 	"math/big"
 	"sync"
 )
 
-// Using big.Int as a bit vector since it isn't the worst
-// performance wise and is availble through the standard library
-// https://medium.com/@val_deleplace/7-ways-to-implement-a-bit-set-in-go-91650229b386
+//go:embed templates.txt
+var templateFile embed.FS
+
+// SudokuNum is a struct that represents the positions of a single
+// digit within Sudoku puzzle. Thus, there are 9 SudokuNum's for each digit
+// It uses big.Int as a bit vector representation of a Sudoku grid
+// It stores the following information:
 type SudokuNum struct {
 	occurs            big.Int
 	conflicts         big.Int
@@ -17,26 +22,34 @@ type SudokuNum struct {
 
 func SolveSudoku(input [][]int) [][]int {
 	var wg sync.WaitGroup
-	var baseTemplate big.Int
 	var freeGrid big.Int
 	var templates []big.Int
 
-	// Generate the 46656 possible templates in a 9x9 sudoku (probably faster than reading from a file)
-	generateSudokuTemplates(&baseTemplate, &freeGrid, &templates, 0, 0)
+	// ~13000000 ns/op faster to read from file
+	templates, err := ReadTemplatesFromEmbed(templateFile)
+	if err != nil {
+		panic(err)
+	}
+	// Uncomment the following to generate the 46656 possible templates instead
+	/*
+		// var baseTemplate big.Int
+		// GenerateSudokuTemplates(&baseTemplate, &freeGrid, &templates, 0, 0)
+		// SaveTemplatesToFile(templates, "templates.txt")
+		// freeGrid.SetInt64(0)
+	*/
 
 	sudokuVec := vectorize(input)
 	inputNums := vecToBits(sudokuVec)
 
 	// - Since every goroutine is exclusively responsible
 	//   for modifying one SudokuNum, atomic access is not necessary
-	// - Parallelizing with Goroutines saves about 5000000 ns/op tested on M1-pro
+	// - Parallelizing with Goroutines saves ~5000000 ns/op tested on M1-pro
 	wg.Add(len(inputNums))
 	for i := range inputNums {
 		go findValidTemplates(templates, &inputNums[i], &wg)
 	}
 	wg.Wait()
 
-	freeGrid.SetInt64(0)
 	dfsBacktrack(inputNums, &freeGrid, &sudokuVec, 0)
 
 	return sudokurize(sudokuVec)
@@ -47,16 +60,14 @@ func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec *[]uint8, inde
 		return true
 	}
 
-	num := input[index]
-
-	for _, template := range num.possibleTemplates {
+	for _, template := range input[index].possibleTemplates {
 		t := new(big.Int).And(freeGrid, &template)
 
 		if len(t.Bits()) == 0 {
 			freeGrid.Xor(freeGrid, &template)
-			rtn := dfsBacktrack(input, freeGrid, solvedVec, index+1)
-			if rtn {
-				insertBitsToVec(template, num.symbol, solvedVec)
+			found := dfsBacktrack(input, freeGrid, solvedVec, index+1)
+			if found {
+				insertBitsToVec(template, input[index].symbol, solvedVec)
 				return true
 			} else {
 				freeGrid.Xor(freeGrid, &template)
@@ -67,7 +78,6 @@ func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec *[]uint8, inde
 	return false
 }
 
-// https://stackoverflow.com/questions/64257065/is-there-another-way-of-testing-if-a-big-int-is-0
 func findValidTemplates(templates []big.Int, input *SudokuNum, wg *sync.WaitGroup) {
 	defer wg.Done()
 
@@ -129,53 +139,4 @@ func sudokurize(input []uint8) [][]int {
 		result = append(result, row)
 	}
 	return result
-}
-
-// TODO: cache this
-func generateSudokuTemplates(currGrid *big.Int, freeGrid *big.Int, templates *[]big.Int, row int, count int) int {
-	if row >= 9 {
-		newTemplate := new(big.Int).Set(currGrid)
-		*templates = append(*templates, *newTemplate)
-		return count + 1
-	}
-
-	for i := 0; i < 9; i++ {
-		cellPos := row*9 + i
-		if freeGrid.Bit(cellPos) != 0 {
-			continue
-		}
-		prevFreeGrid := new(big.Int).Set(freeGrid)
-		setCell(currGrid, freeGrid, cellPos)
-		count = generateSudokuTemplates(currGrid, freeGrid, templates, row+1, count)
-		currGrid.SetBit(currGrid, cellPos, 0)
-		freeGrid.Set(prevFreeGrid)
-	}
-
-	return count
-}
-
-func setCell(grid *big.Int, freeGrid *big.Int, pos int) {
-	// Set cell
-	grid.SetBit(grid, pos, 1)
-
-	// Set row conflicts
-	row := pos / 9
-	for i := 0; i < 9; i++ {
-		freeGrid.SetBit(freeGrid, row*9+i, 1)
-	}
-
-	// Set column conflicts
-	col := pos % 9
-	for i := 0; i < 9; i++ {
-		freeGrid.SetBit(freeGrid, i*9+col, 1)
-	}
-
-	// Set box conflicts
-	boxRow := row / 3
-	boxCol := col / 3
-	for i := 0; i < 3; i++ {
-		for j := 0; j < 3; j++ {
-			freeGrid.SetBit(freeGrid, (boxRow*3+i)*9+(boxCol*3+j), 1)
-		}
-	}
 }
