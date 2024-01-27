@@ -25,7 +25,7 @@ func SolveSudoku(input [][]int) [][]int {
 	var freeGrid big.Int
 	var templates []big.Int
 
-	// ~13000000 ns/op faster to read from file
+	// ~25000000 ns/op faster to read from file (on average)
 	templates, err := ReadTemplatesFromEmbed(templateFile)
 	if err != nil {
 		panic(err)
@@ -37,6 +37,7 @@ func SolveSudoku(input [][]int) [][]int {
 		// SaveTemplatesToFile(templates, "templates.txt")
 		// freeGrid.SetInt64(0)
 	*/
+
 	sudokuVec := vectorize(input)
 	if len(sudokuVec) != 81 {
 		panic("Invalid Sudoku puzzle")

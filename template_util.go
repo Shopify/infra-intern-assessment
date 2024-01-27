@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"embed"
+	"encoding/base64"
 	"fmt"
 	"math/big"
 	"os"
@@ -60,8 +61,8 @@ func setCell(grid *big.Int, freeGrid *big.Int, pos int) {
 	}
 }
 
-// SaveTemplatesToFile saves the decimal value of each bit vector template
-// into a text file specified by filename.
+// SaveTemplatesToFile saves the value of each bit vector template
+// encoded in base64 into a text file specified by filename.
 func SaveTemplatesToFile(templates []big.Int, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
@@ -73,7 +74,10 @@ func SaveTemplatesToFile(templates []big.Int, filename string) error {
 	defer writer.Flush()
 
 	for _, template := range templates {
-		_, err := fmt.Fprintln(writer, &template)
+		templateBytes := template.Bytes()
+		encodedTemplate := base64.StdEncoding.EncodeToString(templateBytes)
+
+		_, err := fmt.Fprintln(writer, encodedTemplate)
 		if err != nil {
 			return err
 		}
@@ -83,7 +87,7 @@ func SaveTemplatesToFile(templates []big.Int, filename string) error {
 }
 
 // ReadTemplatesFromFile reads from an embed.FS file and returns a slice of big.Int's
-// which represents a template of a Sudoku grid It reads every decimal value as a line
+// which represents a template of a Sudoku grid It reads every base64 value as a line
 // which is then converted into a bit vector.
 func ReadTemplatesFromEmbed(filename embed.FS) ([]big.Int, error) {
 	file, err := filename.Open("templates.txt")
@@ -97,10 +101,11 @@ func ReadTemplatesFromEmbed(filename embed.FS) ([]big.Int, error) {
 
 	for scanner.Scan() {
 		var template big.Int
-		_, success := template.SetString(scanner.Text(), 10)
-		if !success {
+		decodedTemplate, err := base64.StdEncoding.DecodeString(scanner.Text())
+		if err != nil {
 			return nil, fmt.Errorf("Error parsing template from file")
 		}
+		template.SetBytes(decodedTemplate)
 		templates = append(templates, template)
 	}
 
