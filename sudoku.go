@@ -61,16 +61,22 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	var graph map[int]map[int][]int
 
 	posns, remaining = createPosAndRem(puzzle)
-
 	graph = createGraph(puzzle, posns)
 
 	printPuzzle(puzzle)
 
 	// We want to fill in the numbers with the least remaining occurrences first, which will make
 	// the algorithm more efficient, so we sort the remaining map by its values
-	// keysSorted := keysSortedByValue(remaining)
+	keysSorted := keysSortedByValue(remaining)
 
-	solvedPuzzle := fillPuzzle(puzzle, posns, remaining, graph)
+	// Create a slice of the rows of the first key in the graph
+	rows := make([]int, 0, len(graph[0]))
+	for k := range graph[0] {
+		rows = append(rows, k)
+	}
+
+	// Run the actual algorithm
+	solvedPuzzle := fillPuzzle(puzzle, graph, 0, keysSorted, 0, rows)
 
 	// printPuzzle(solvedPuzzle)
 	
@@ -79,8 +85,8 @@ func SolveSudoku(puzzle [][]int) [][]int {
 
 // fillPuzzle fills in the Sudoku puzzle with the correct numbers using a backtracking algorithm
 // with crosshatching
-func fillPuzzle(puzzle [][]int, posns map[int][][]int, remaining map[int]int,
-				graph map[int]map[int][]int) [][]int {
+func fillPuzzle(puzzle [][]int, graph map[int]map[int][]int, k int, keys []int, r int,
+				rows []int) [][]int {
 	// Add logic
 	return puzzle
 }
