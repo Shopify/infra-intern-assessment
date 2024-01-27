@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 )
 
 // TODO:
@@ -23,7 +24,7 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	// 	2: [[4, 5], [6, 6], ...],
 	// 	...
 	// }
-	var pos map[int][][]int
+	var posns map[int][][]int
 
 	// Count of the number of remaining occurrences of each number, in the following format:
 	// {
@@ -59,26 +60,26 @@ func SolveSudoku(puzzle [][]int) [][]int {
 	// }
 	var graph map[int]map[int][]int
 
-	// pos, remaining = populatePosAndRemaining(puzzle)
+	posns, remaining = createPosAndRem(puzzle)
 
-	// TODO: Sort the remaining map in ascending order by value
-	// We want to fill in the numbers with the least remaining occurrences first,
-	// which will make the algorithm more efficient
-
-	// graph = populateGraph(puzzle)
+	graph = createGraph(puzzle, posns)
 
 	printPuzzle(puzzle)
 
-	solvedPuzzle := fillPuzzle(puzzle, pos, remaining, graph)
+	// We want to fill in the numbers with the least remaining occurrences first, which will make
+	// the algorithm more efficient, so we sort the remaining map by its values
+	// keysSorted := keysSortedByValue(remaining)
 
-	printPuzzle(solvedPuzzle)
+	solvedPuzzle := fillPuzzle(puzzle, posns, remaining, graph)
+
+	// printPuzzle(solvedPuzzle)
 	
 	return solvedPuzzle
 }
 
 // fillPuzzle fills in the Sudoku puzzle with the correct numbers using a backtracking algorithm
 // with crosshatching
-func fillPuzzle(puzzle [][]int, pos map[int][][]int, remaining map[int]int,
+func fillPuzzle(puzzle [][]int, posns map[int][][]int, remaining map[int]int,
 				graph map[int]map[int][]int) [][]int {
 	// Add logic
 	return puzzle
@@ -114,15 +115,31 @@ func validPlacement(puzzle [][]int, row int, col int) bool {
 	return true
 }
 
+// keysSortedByValue returns a slice of the keys of the map m sorted by their values
+func keysSortedByValue(m map[int]int) []int {
+	// Create a slice of keys from the map
+	keys := make([]int, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	// Sort the slice of keys based on their values in the map
+	sort.Slice(keys, func(i, j int) bool {
+		return m[keys[i]] < m[keys[j]]
+	})
+
+	return keys
+}
+
 // createPosAndRem returns maps which contain the positions and remaining counts of each number in
 // the puzzle
 func createPosAndRem(puzzle [][]int) (map[int][][]int, map[int]int) {
-	pos := make(map[int][][]int)
+	posns := make(map[int][][]int)
 	rem := make(map[int]int)
 
 	// Initialize pos and rem
 	for i := 1; i <= len(puzzle); i++ {
-		pos[i] = [][]int{}
+		posns[i] = [][]int{}
 		rem[i] = 9
 	}
 
@@ -130,22 +147,22 @@ func createPosAndRem(puzzle [][]int) (map[int][][]int, map[int]int) {
 		for c := 0; c < len(puzzle); c++ {
 			if puzzle[r][c] != 0 {  // Ignore 0s
 				// Add the position of the number to the pos map
-				pos[puzzle[r][c]] = append(pos[puzzle[r][c]], []int{r, c})
+				posns[puzzle[r][c]] = append(posns[puzzle[r][c]], []int{r, c})
 				// Decrement the remaining count of the number
 				rem[puzzle[r][c]]--
 			}
 		}
 	}
 
-	return pos, rem
+	return posns, rem
 }
 
 // createGraph returns a map which contains potential placements for each number
-func createGraph(puzzle [][]int, pos map[int][][]int) map[int]map[int][]int {
+func createGraph(puzzle [][]int, posns map[int][][]int) map[int]map[int][]int {
 	graph := make(map[int]map[int][]int)
 
 	// Iterate over each number and its positions in the puzzle
-	for k, v := range pos {
+	for k, v := range posns {
 		graph[k] = make(map[int][]int)
 
 		// Initialize slices to keep track of which rows and columns already have the number k
@@ -176,7 +193,13 @@ func createGraph(puzzle [][]int, pos map[int][][]int) map[int]map[int][]int {
 // printPuzzle prints a Sudoku puzzle
 func printPuzzle(puzzle [][]int) {
 	for row := 0; row < len(puzzle); row++ {
+		if row%3 == 0 && row != 0 {
+			fmt.Println("---------------------")
+		}
 		for col := 0; col < len(puzzle[row]); col++ {
+			if col%3 == 0 && col != 0 {
+				fmt.Print("| ")
+			}
 			fmt.Printf("%d ", puzzle[row][col])
 		}
 		fmt.Println()
