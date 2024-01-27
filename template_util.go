@@ -9,8 +9,8 @@ import (
 	"os"
 )
 
-// GenerateSudokuTemplates returns an int which is number of elements appended to the templates slice.
-// It generates all possible patterns a digit from 1 to 9 can be placed in a traditional Sudoku grid, which is 46656.
+// GenerateSudokuTemplates returns an int which is the number of elements appended to the templates slice.
+// It generates all possible patterns a digit from 1 to 9 can be placed inside a traditional Sudoku grid, which is 46656 possible ways.
 // Each template is a bit vector representation of a Sudoku grid where 1 represents a valid position and 0 represents an empty cell.
 func GenerateSudokuTemplates(currGrid *big.Int, freeGrid *big.Int, templates *[]big.Int, row int, count int) int {
 	if row >= 9 {
@@ -87,8 +87,8 @@ func SaveTemplatesToFile(templates []big.Int, filename string) error {
 }
 
 // ReadTemplatesFromFile reads from an embed.FS file and returns a slice of big.Int's
-// which represents a template of a Sudoku grid It reads every base64 value as a line
-// which is then converted into a bit vector.
+// where each element represents a template of a Sudoku grid. It reads every base64 value
+// as a line which is then converted into a bit vector.
 func ReadTemplatesFromEmbed(filename embed.FS) ([]big.Int, error) {
 	file, err := filename.Open("templates.txt")
 	if err != nil {

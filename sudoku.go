@@ -9,10 +9,9 @@ import (
 //go:embed templates.txt
 var templateFile embed.FS
 
-// SudokuNum is a struct that represents the positions of a single
-// digit within Sudoku puzzle. Thus, there are 9 SudokuNum's for each digit
-// It uses big.Int as a bit vector representation of a Sudoku grid
-// It stores the following information:
+// SudokuNum is a struct that represents the positions of a single digit
+// within a Sudoku puzzle. Thus, there are 9 SudokuNum's, one for each digit.
+// It uses big.Int as a bit vector representation of a Sudoku grid.
 type SudokuNum struct {
 	occurs            big.Int
 	conflicts         big.Int
@@ -20,6 +19,8 @@ type SudokuNum struct {
 	symbol            uint8
 }
 
+// SolveSudoku solves a Sudoku puzzle by using templating, backtracking,
+// and a little bit of parallelization. Can panic if the input is invalid.
 func SolveSudoku(input [][]int) [][]int {
 	var wg sync.WaitGroup
 	var freeGrid big.Int
@@ -53,11 +54,18 @@ func SolveSudoku(input [][]int) [][]int {
 	}
 	wg.Wait()
 
-	dfsBacktrack(inputNums, &freeGrid, sudokuVec, 0)
+	valid := dfsBacktrack(inputNums, &freeGrid, sudokuVec, 0)
+	if !valid {
+		panic("Invalid Sudoku puzzle")
+	}
 
 	return sudokurize(sudokuVec)
 }
 
+// dfsBacktrack is a recursive function that uses backtracking to solve a Sudoku puzzle by
+// trying every possible template from a filtered set for each digit. It returns true
+// upon finding the first set of valid templates (i.e. a solution). It may be modified
+// to check if a Sudoku puzzle only has one solution by creating >1 set of templates for a given grid.
 func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec []uint8, index int) bool {
 	if index >= 9 {
 		return true
@@ -81,6 +89,9 @@ func dfsBacktrack(input []SudokuNum, freeGrid *big.Int, solvedVec []uint8, index
 	return false
 }
 
+// findValidTemplates is a helper function for SolveSudoku that filters out invalid templates
+// for a given digit (i.e. SudokuNum). It uses bitwise operations to encourage vectorization.
+// It is parallelized by using goroutines and blocking until all goroutines in the WaitGroup are finished.
 func findValidTemplates(templates []big.Int, input *SudokuNum, wg *sync.WaitGroup) {
 	defer wg.Done()
 
@@ -130,8 +141,8 @@ func vecToBits(vec []uint8) []SudokuNum {
 	return result
 }
 
-// insertBitsToVec inserts the positions of the 1's in bits into the respective position.
-// of the input vector representation of a Sudoku puzzle.
+// insertBitsToVec inserts the positions of the 1's in bits into their
+// respective position of the input slice representation of a Sudoku puzzle.
 func insertBitsToVec(bits big.Int, num uint8, input []uint8) {
 	for i := 0; i < 81; i++ {
 		if bits.Bit(i) == 1 {
