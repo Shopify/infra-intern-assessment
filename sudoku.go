@@ -1,5 +1,6 @@
 package main
 
+// Check the sub array of the sudoku board (3x3) to fetch the available numbers for the current cell.
 func CheckSubSudoku(board [][]int, row, col int, availableNums map[int]bool) {
 	var top, bottom, left, right int
 
@@ -56,10 +57,13 @@ func FillBoard(board [][]int) bool {
 			if board[i][j] == 0 {
 				availableNumbers := GetAvailableNumbers(board, i, j)
 				for num := range availableNumbers {
+					// Fill each available number to the board & recursively call FillBoard() to fill the next empty cell if possible.
 					board[i][j] = num
 					if FillBoard(board) {
+						// We have found a valid way to solve our sudoku board => terminate the recursion immediately.
 						return true
 					}
+					// Backtrack the cell to the previous unfilled state (0)
 					board[i][j] = 0
 				}
 				return false
