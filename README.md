@@ -2,7 +2,7 @@
 ### Submission by Jessica Li
 ## About This Repository
 This repo has been forked from Shopify's Infra Intern 2024 Assessment. 
-The task is to create a Go program to solve a Sudoku puzzle. More information can be found [here](./instructions.md).
+The task is to create a Go program to solve a Sudoku puzzle. More information can be found [here](./INSTRUCTIONS.md).
 ### Constraints
 - The input grid will be a 9x9 two-dimensional array of integers.
 - The input grid will have exactly one solution.
