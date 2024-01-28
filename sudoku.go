@@ -4,6 +4,11 @@ import (
 	"fmt"
 )
 
+// SolveSudoku 
+// Input: a grid with values between 0-9 
+// Output: a new grid with either solved values or a duplicate grid
+// Creates a new grid structure so that original remains unchanged
+// Prints solved grid to console
 func SolveSudoku(grid [][]int) [][]int {
 	solvedGrid := CopyGrid(grid)
 	SolveGridNaive(solvedGrid, 0, 0)
