@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	"math/big"
 	"sync"
 )
@@ -20,7 +21,8 @@ type SudokuNum struct {
 }
 
 // SolveSudoku solves a Sudoku puzzle by using templating, backtracking,
-// and a little bit of parallelization. Can panic if the input is invalid.
+// and a little bit of parallelization. Can panic if the input is invalid
+// and prints the solution to stdout if found.
 func SolveSudoku(input [][]int) [][]int {
 	var wg sync.WaitGroup
 	var freeGrid big.Int
@@ -51,7 +53,9 @@ func SolveSudoku(input [][]int) [][]int {
 		panic("Invalid Sudoku puzzle")
 	}
 
-	return sudokurize(sudokuVec)
+	sol := sudokurize(sudokuVec)
+	printSudoku(sol)
+	return sol
 }
 
 // dfsBacktrack is a recursive function that uses backtracking to solve a Sudoku puzzle by
@@ -155,4 +159,25 @@ func sudokurize(input []uint8) [][]int {
 		result = append(result, row)
 	}
 	return result
+}
+
+// printSudoku prints a 2d array representation of a Sudoku puzzle
+// from a 2d slice representation of a Sudoku puzzle.
+func printSudoku(grid [][]int) {
+	fmt.Println("[")
+	for i, row := range grid {
+		fmt.Print("  [")
+		for j, value := range row {
+			fmt.Print(value)
+			if j < len(row)-1 {
+				fmt.Print(", ")
+			}
+		}
+		fmt.Print("]")
+		if i < len(grid)-1 {
+			fmt.Print(",")
+		}
+		fmt.Println()
+	}
+	fmt.Println("]")
 }
