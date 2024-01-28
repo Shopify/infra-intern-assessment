@@ -1,3 +1,4 @@
+// Package main implements a Sudoku solver based on the Pattern Overlay Method.
 package main
 
 import (
@@ -39,9 +40,8 @@ func SolveSudoku(input [][]int) [][]int {
 		panic(err)
 	}
 
-	// - Since every goroutine is exclusively responsible
-	//   for modifying one SudokuNum, atomic access is not necessary
-	// - Parallelizing with Goroutines saves ~5000000 ns/op tested on M1-pro
+	// Since every goroutine is exclusively responsible for modifying one SudokuNum, atomic access is not necessary
+	// Parallelizing with Goroutines saves ~5000000 ns/op tested on M1-pro
 	wg.Add(len(inputNums))
 	for i := range inputNums {
 		go findValidTemplates(templates, &inputNums[i], &wg)

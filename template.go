@@ -9,6 +9,7 @@ import (
 	"os"
 )
 
+// main generates the templates.txt file
 func main() {
 	var baseTemplate big.Int
 	var freeGrid big.Int
