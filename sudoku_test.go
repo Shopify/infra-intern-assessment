@@ -36,3 +36,21 @@ func TestSolveSudoku(t *testing.T) {
 		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
 	}
 }
+
+func BenchmarkSolveSudoku(b *testing.B) {
+	input := [][]int{
+		{5, 3, 0, 0, 7, 0, 0, 0, 0},
+		{6, 0, 0, 1, 9, 5, 0, 0, 0},
+		{0, 9, 8, 0, 0, 0, 0, 6, 0},
+		{8, 0, 0, 0, 6, 0, 0, 0, 3},
+		{4, 0, 0, 8, 0, 3, 0, 0, 1},
+		{7, 0, 0, 0, 2, 0, 0, 0, 6},
+		{0, 6, 0, 0, 0, 0, 2, 8, 0},
+		{0, 0, 0, 4, 1, 9, 0, 0, 5},
+		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	}
+
+	for i := 0; i < b.N; i++ {
+		SolveSudoku(input)
+	}
+}
