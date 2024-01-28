@@ -1,11 +1,9 @@
 package main
 
-// entry point for tests
+// SolveSudoku takes a 2D 9x9 sudoku grid, solves it and returns the solution.
 func SolveSudoku(sudoku [][]int) [][]int {
-    if solve(sudoku) {
-        return sudoku
-    }
-    return nil
+    solve(sudoku);
+    return sudoku
 }
 
 //  solve solves a 2D 9x9 sudoku grid with constraints:
