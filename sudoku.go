@@ -22,7 +22,7 @@ type SudokuNum struct {
 }
 
 // SolveSudoku solves a Sudoku puzzle by using templating, backtracking,
-// and a little bit of parallelization. Can panic if the input is invalid
+// and a little bit of parallelization. Returns nil if the input is invalid
 // and prints the solution to stdout if found.
 func SolveSudoku(input [][]int) [][]int {
 	var wg sync.WaitGroup
@@ -30,14 +30,14 @@ func SolveSudoku(input [][]int) [][]int {
 	var templates []big.Int
 	sudokuVec := vectorize(input)
 	if len(sudokuVec) != 81 {
-		panic("Invalid Sudoku puzzle")
+		return nil
 	}
 	inputNums := vecToBits(sudokuVec)
 
 	// ~25000000 ns/op faster to read from file (on average)
 	templates, err := ReadTemplatesFromEmbed(templateFile)
 	if err != nil {
-		panic(err)
+		return nil
 	}
 
 	// Since every goroutine is exclusively responsible for modifying one SudokuNum, atomic access is not necessary
@@ -50,7 +50,7 @@ func SolveSudoku(input [][]int) [][]int {
 
 	valid := dfsBacktrack(inputNums, &freeGrid, sudokuVec, 0)
 	if !valid {
-		panic("Invalid Sudoku puzzle")
+		return nil
 	}
 
 	sol := sudokurize(sudokuVec)
