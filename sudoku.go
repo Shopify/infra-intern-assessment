@@ -1,8 +1,8 @@
 package main
 
-func GetSolns(input [][]int, loc_x int, loc_y int) []int {
-	var possible_solns []int
-	possible_solns = append(possible_solns, 1)
+func GetSolns(input [][]int, loc_x int, loc_y int) map[int]bool {
+	var possible_solns map[int]bool = map[int]bool{}
+	possible_solns[1] = true
 	return possible_solns
 }
 
@@ -23,14 +23,14 @@ func RunSolve(input [][]int, loc_x int, loc_y int) bool {
 
 	//find all possible numbers in current position
 
-	var possible_solns = GetSolns(input, loc_x, loc_y)
+	var possible_solns map[int]bool = GetSolns(input, loc_x, loc_y)
 	if len(possible_solns) == 0 {
 		input[loc_y][loc_x] = 0
 		return false // Base case: the given input has no solution
 	}
 
 	//runsolve on each number until one solves
-	for _, soln := range possible_solns {
+	for soln := range possible_solns {
 		input[loc_y][loc_x] = soln
 		if RunSolve(input, loc_x, loc_y) {
 			return true
@@ -41,8 +41,6 @@ func RunSolve(input [][]int, loc_x int, loc_y int) bool {
 	//if all numbers are used, reset value at position to zero and return false
 	input[loc_y][loc_x] = 0
 	return false
-
-	//if a number works, return true
 }
 
 func SolveSudoku(input [][]int) [][]int {
