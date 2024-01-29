@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -32,8 +31,6 @@ func TestSolveSudoku(t *testing.T) {
 	}
 
 	solved := SolveSudoku(input)
-	fmt.Printf("type of solved is %T\n", solved)
-	fmt.Printf("type of expected is %T\n", expected)
 	if !reflect.DeepEqual(solved, expected) {
 		t.Errorf("Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
 	}
