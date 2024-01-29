@@ -70,6 +70,7 @@ func TestCompletedSudoku(t *testing.T) {
 	}
 }
 
+// The following sudoku puzzle is taken from https://www.sudoku.net/en
 func TestChallengingLevelSudoku(t *testing.T) {
 	input := [][]int{
 		{0, 0, 0, 1, 0, 0, 2, 0, 0},
