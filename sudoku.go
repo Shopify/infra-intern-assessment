@@ -73,8 +73,8 @@ func solve_sudoku(grid [][]int, r, c int) bool {
 // - This function first checks if the given number is in the same row (all values in grid[row]).
 // - It then checks if the given number is in the same column (all values in grid[i][col] for a 0<= i <9).
 // - Lastly, it checks if the number is in the same 3 by 3 grid we do this by calucating the start and end coordinates of the grid
-// They are 3*(row/ floor(3)) and 3*(col/floor(3)
-// - We then check all values in range 3 * (row/ floor(3)) to (3 * (row/ floor(3))) +3
+// They are 3 * (row/ floor(3)) and 3 * (col/floor(3)
+// - We then check all values in range 3 * (row/ floor(3)) to (3 * (row/ floor(3))) + 3
 // and 3 * col/floor(3) to (3 * (col/floor(3))) + 3, we must check all cells in that range. There are 9 in total.
 
 func is_legal(grid [][]int, row, col, value int) bool {
