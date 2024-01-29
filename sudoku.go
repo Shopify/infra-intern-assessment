@@ -29,7 +29,7 @@ func solve(board [][]int) bool { // Solves the sudoku board using backtracking a
 }
 
 // helper function
-func isValid(board [][]int, row, col, num int) bool { //Checks whether the number is present in column row or 3x3 sub-grid
+func isValid(board [][]int, row, col, num int) bool { //Checks whether the number is present in column, row and 3x3 sub-grid
 	for i := 0; i < 9; i++ {
 		if board[i][col] == num {
 			return false
