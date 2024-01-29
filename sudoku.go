@@ -8,12 +8,22 @@ func GetSolns(input [][]int, loc_x int, loc_y int) map[int]bool {
 		delete(possible_solns, input[i][loc_x])
 	}
 
+	box_x := (loc_x / 3) * 3
+	box_y := (loc_y / 3) * 3 // Rounds to the upper left corner of 3x3 box
+
+	for dx := 0; dx < 3; dx++ {
+		for dy := 0; dy < 3; dy++ {
+			delete(possible_solns, input[box_y+dy][box_x+dx])
+		}
+	}
+
 	return possible_solns
 }
 
 // Returns solves the puzzle starting from the given location (for efficiency) and
 // returns true. Otherwise, returns false and the puzzle is unmodified.
 func RunSolve(input [][]int, loc_x int, loc_y int) bool {
+
 	//move x, y to the first blank
 	for input[loc_y][loc_x] != 0 {
 		loc_x++
@@ -26,15 +36,12 @@ func RunSolve(input [][]int, loc_x int, loc_y int) bool {
 		}
 	}
 
-	//find all possible numbers in current position
-
 	var possible_solns map[int]bool = GetSolns(input, loc_x, loc_y)
 	if len(possible_solns) == 0 {
 		input[loc_y][loc_x] = 0
 		return false // Base case: the given input has no solution
 	}
 
-	//runsolve on each number until one solves
 	for soln := range possible_solns {
 		input[loc_y][loc_x] = soln
 		if RunSolve(input, loc_x, loc_y) {
@@ -42,8 +49,6 @@ func RunSolve(input [][]int, loc_x int, loc_y int) bool {
 		}
 	}
 
-	//if runsolve cant solve, move onto the next possible number.
-	//if all numbers are used, reset value at position to zero and return false
 	input[loc_y][loc_x] = 0
 	return false
 }
