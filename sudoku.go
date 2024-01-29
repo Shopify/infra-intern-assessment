@@ -1,8 +1,13 @@
 package main
 
 func GetSolns(input [][]int, loc_x int, loc_y int) map[int]bool {
-	var possible_solns map[int]bool = map[int]bool{}
-	possible_solns[1] = true
+	var possible_solns map[int]bool = map[int]bool{1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true}
+
+	for i := 0; i < 9; i++ {
+		delete(possible_solns, input[loc_y][i])
+		delete(possible_solns, input[i][loc_x])
+	}
+
 	return possible_solns
 }
 
