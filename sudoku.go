@@ -1,6 +1,6 @@
 package main
 
-// - Here is my final solution for the Shopifly Technical Challenge
+// - Here is my final solution for the Shopify Technical Challenge
 // - I created a backtracking algorithm to create the sudoku solver.
 // - My solution has three functions. The first function (SolveSudoku) simply calls the main helper function
 // which is called solve_sudoku on the grid. solve_sudoku is the main recursive function that does the solving
