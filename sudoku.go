@@ -23,7 +23,7 @@ func GetSolns(input [][]int, pos_x int, pos_y int) map[int]bool {
 	return possible_solns
 }
 
-// Solves the puzzle (if solvable) starting from the given location (for efficiency) and
+// Solves the puzzle (if solvable) starting from the given location and
 // returns true. Otherwise, returns false and the puzzle is unmodified.
 func RunSolve(input [][]int, pos_x int, pox_y int) bool {
 
