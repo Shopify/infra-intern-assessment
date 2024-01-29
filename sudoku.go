@@ -2,7 +2,7 @@ package main
 
 //Returns a set of all possible solutions for the specified position
 func GetSolns(input [][]int, pos_x int, pos_y int) map[int]bool {
-	var possible_solns map[int]bool = map[int]bool{1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true}
+	var possible_solns map[int]bool = map[int]bool{1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true, 9: true} // I wish there was a proper set type
 
 	for i := 0; i < 9; i++ {
 		delete(possible_solns, input[pos_y][i])
@@ -37,11 +37,7 @@ func RunSolve(input [][]int, pos_x int, pox_y int) bool {
 		}
 	}
 
-	var possible_solns map[int]bool = GetSolns(input, pos_x, pox_y)
-	if len(possible_solns) == 0 {
-		input[pox_y][pos_x] = 0
-		return false // Base case: the given input has no solution
-	}
+	possible_solns := GetSolns(input, pos_x, pox_y)
 
 	for soln := range possible_solns {
 		input[pox_y][pos_x] = soln
@@ -51,7 +47,7 @@ func RunSolve(input [][]int, pos_x int, pox_y int) bool {
 	}
 
 	input[pox_y][pos_x] = 0
-	return false
+	return false // Base case: Either the input puzzle has no solution (len(possible_solns) == 0) or all the possible solns failed.
 }
 
 func SolveSudoku(input [][]int) [][]int {
