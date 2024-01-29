@@ -2,15 +2,15 @@ package main
 
 import ("fmt")
 
-// SolveSudoku solves the Sudoku puzzle using backtracking
-func SolveSudoku(puzzle [][]int) bool {
+// ComputeSudoku solves the Sudoku puzzle using backtracking
+func ComputeSudoku(puzzle [][]int) bool {
 	for row := 0; row < 9; row++ {
 		for col := 0; col < 9; col++ {
 			if puzzle[row][col] == 0 {
 				for num := 1; num <= 9; num++ {
-					if isSafe(puzzle, row, col, num) {
+					if i=IsSafe(puzzle, row, col, num) {
 						puzzle[row][col] = num
-						if SolveSudoku(puzzle) {
+						if ComputeSudoku(puzzle) {
 							return true
 						}
 						puzzle[row][col] = 0
@@ -24,7 +24,7 @@ func SolveSudoku(puzzle [][]int) bool {
 }
 
 // isSafe checks if it's safe to place 'num' at puzzle[row][col]
-func isSafe(puzzle [][]int, row, col, num int) bool {
+func IsSafe(puzzle [][]int, row, col, num int) bool {
 	// Check if 'num' is not present in the current row and column
 	for i := 0; i < 9; i++ {
 		if puzzle[row][i] == num || puzzle[i][col] == num {
@@ -46,11 +46,21 @@ func isSafe(puzzle [][]int, row, col, num int) bool {
 }
 
 // Modify puzzleResp.Puzzle to compute the solution
-func computeSolution(puzzle [][]int) {
-	if SolveSudoku(puzzle) {
+func SolveSudoku(puzzle [][]int) [][]int {
+	if ComputeSudoku(puzzle) {
 		fmt.Println("Computed Solution:")
 		printPuzzle(puzzle)
 	} else {
 		fmt.Println("No solution found.")
+	}
+    return puzzle
+}
+
+func printPuzzle(puzzle [][]int) {
+	for _, row := range puzzle {
+		for _, val := range row {
+			fmt.Printf("%d ", val)
+		}
+		fmt.Println()
 	}
 }
