@@ -58,14 +58,14 @@ func SolveSudoku(sudoku [][]int) [][]int {
 		}
 	}
 
-	sudoku, zeroCounter = sudokuSolverCore(
+	sudoku, zeroCounter = SudokuSolveCore(
 		sudoku, PresentInRow, PresentInColumn, PresentInBox, zeroCounter, 0, 0)
 
 	return sudoku
 }
 
 // function to recursively trial candidates
-func sudokuSolverCore(sudoku [][]int, PresentInRow [][]int, PresentInColumn [][]int, PresentInBox [][]int,
+func SudokuSolveCore(sudoku [][]int, PresentInRow [][]int, PresentInColumn [][]int, PresentInBox [][]int,
 	zeroCounter int, iStart int, jStart int) ([][]int, int) {
 
 	for i := iStart; i < 9; i++ {
@@ -90,9 +90,9 @@ func sudokuSolverCore(sudoku [][]int, PresentInRow [][]int, PresentInColumn [][]
 
 						// make recursive call to go to next location and try out all valid digits there
 						if j == 8 {
-							sudoku, zeroCounter = sudokuSolverCore(sudoku, PresentInRow, PresentInColumn, PresentInBox, zeroCounter, i+1, 0)
+							sudoku, zeroCounter = SudokuSolveCore(sudoku, PresentInRow, PresentInColumn, PresentInBox, zeroCounter, i+1, 0)
 						} else {
-							sudoku, zeroCounter = sudokuSolverCore(sudoku, PresentInRow, PresentInColumn, PresentInBox, zeroCounter, i, j+1)
+							sudoku, zeroCounter = SudokuSolveCore(sudoku, PresentInRow, PresentInColumn, PresentInBox, zeroCounter, i, j+1)
 						}
 
 						// revert to previous solution if recursive calls did not find a solution for the current setup
