@@ -25,24 +25,24 @@ func SolveSudoku (input_grid [][]int) [][]int {
 	rowNums := make([]map[int]bool, BOARD_SIZE) // allocate the appropriate size array of maps
 	colNums := make([]map[int]bool, BOARD_SIZE)
 	subBoxNums := make([]map[int]bool, BOARD_SIZE)
-
+	
 	for i := 0; i < BOARD_SIZE; i++ {
-        rowNums[i] = make(map[int]bool)
-        colNums[i] = make(map[int]bool)
-        subBoxNums[i] = make(map[int]bool)
-    }
+		rowNums[i] = make(map[int]bool)
+		colNums[i] = make(map[int]bool)
+		subBoxNums[i] = make(map[int]bool)
+	}
 
 	// Populate the maps with existing numbers in the grid
-    for row := 0; row < BOARD_SIZE; row++ {
-        for col := 0; col < BOARD_SIZE; col++ {
-            num := input_grid[row][col]
-            if num != EMPTY_CELL {
-                rowNums[row][num] = true
-                colNums[col][num] = true
-                subBoxNums[getSubBoxId(row, col)][num] = true
-            }
-        }
-    }
+	for row := 0; row < BOARD_SIZE; row++ {
+		for col := 0; col < BOARD_SIZE; col++ {
+			num := input_grid[row][col]
+			if num != EMPTY_CELL {
+				rowNums[row][num] = true
+				colNums[col][num] = true
+				subBoxNums[getSubBoxId(row, col)][num] = true
+			}
+		}
+	}
 
 	// in place modify input_grid
 	backTrackSolve(input_grid, rowNums, colNums, subBoxNums, 0, 0)
