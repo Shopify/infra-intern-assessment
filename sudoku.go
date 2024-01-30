@@ -1,6 +1,6 @@
 package main
 
-/// SolveSudoku solves the Sudoku puzzle using backtracking algorithm
+// SolveSudoku solves the Sudoku puzzle using backtracking algorithm
 func SolveSudoku(grid [][]int) [][]int {
     if solve(grid) {
         return grid
@@ -14,20 +14,12 @@ func solve(grid [][]int) bool {
     if !found {
         return true
     }
-    // Use a frequency count heuristic to prioritize the numbers that are most likely to lead to a solution
-    counts := make([]int, 9)
-    for i := 0; i < 9; i++ {
-        for j := 0; j < 9; j++ {
-            counts[grid[i][j]-1]++
-        }
-    }
     for num := 1; num <= 9; num++ {
-        if counts[num-1] < 9 && isValid(grid, emptyRow, emptyCol, num) {
+        if isValid(grid, emptyRow, emptyCol, num) {
             grid[emptyRow][emptyCol] = num
             if solve(grid) {
                 return true
             }
-            // Reset the spot and try the next number
             grid[emptyRow][emptyCol] = 0
         }
     }
