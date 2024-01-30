@@ -4,7 +4,7 @@ func nextSquare(row int, col int) (int, int) {
 	// Determines the next square to be filled in the board.
 
 	pos := row*9 + col + 1
-	if pos == 80 {
+	if pos == 81 {
 		// All squares are filled. There is no next square.
 		return -1, -1
 	}
@@ -74,7 +74,11 @@ func SolveSudoku(board [][]int) [][]int {
 	}
 
 	// Call the recursive function.
-	solveBoard(new_board, 0, 0)
+	if solveBoard(new_board, 0, 0) {
+		return new_board
+	} else {
+		panic("No solution.")
+	}
 
 	return new_board
 }
