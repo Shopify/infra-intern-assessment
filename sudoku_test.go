@@ -37,8 +37,41 @@ func TestSolveSudoku(t *testing.T) {
 	}
 }
 
-func TestSolveSudokuNYT(t *testing.T) {
-	// NYT Sudoku Hard on January 29th, 2024
+func TestSolveSudokuNYTMedium(t *testing.T) {
+	// New York Times Sudoku Medium on January 29th, 2024
+	input := [][]int{
+		{0, 2, 9, 1, 5, 0, 0, 0, 8},
+		{7, 0, 0, 0, 0, 8, 0, 0, 0},
+		{0, 5, 0, 4, 0, 9, 7, 0, 0},
+		{0, 0, 7, 0, 0, 0, 0, 0, 5},
+		{0, 0, 0, 9, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 1, 0, 0, 2, 6},
+		{6, 0, 0, 0, 0, 0, 3, 1, 0},
+		{0, 8, 1, 2, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 2},
+	}
+
+	expected := [][]int{
+		{3, 2, 9, 1, 5, 7, 6, 4, 8},
+		{7, 1, 4, 3, 6, 8, 2, 5, 9},
+		{8, 5, 6, 4, 2, 9, 7, 3, 1},
+		{2, 4, 7, 8, 3, 6, 1, 9, 5},
+		{1, 6, 5, 9, 4, 2, 8, 7, 3},
+		{9, 3, 8, 7, 1, 5, 4, 2, 6},
+		{6, 9, 2, 5, 8, 4, 3, 1, 7},
+		{5, 8, 1, 2, 7, 3, 9, 6, 4},
+		{4, 7, 3, 6, 9, 1, 5, 8, 2},
+	}
+
+	solved := SolveSudoku(input)
+
+	if !reflect.DeepEqual(solved, expected) {
+		t.Errorf("NYT Sudoku Medium puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
+	}
+}
+
+func TestSolveSudokuNYTHard(t *testing.T) {
+	// New York Times Sudoku Hard on January 29th, 2024
 	input := [][]int{
 		{8, 9, 0, 0, 7, 0, 0, 1, 0},
 		{6, 2, 0, 0, 0, 3, 0, 5, 0},
@@ -66,6 +99,6 @@ func TestSolveSudokuNYT(t *testing.T) {
 	solved := SolveSudoku(input)
 
 	if !reflect.DeepEqual(solved, expected) {
-		t.Errorf("NYT Sudoku puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
+		t.Errorf("NYT Sudoku Hard puzzle was not solved correctly. Expected:\n%v\n\nGot:\n%v", expected, solved)
 	}
 }

@@ -79,6 +79,4 @@ func SolveSudoku(board [][]int) [][]int {
 	} else {
 		panic("No solution.")
 	}
-
-	return new_board
 }
