@@ -1,6 +1,9 @@
 /*
-Shopify 
+Shopify Infra Intern Sudoku Assignment!
 
+This file, specifically SolveSudoku has the functionality to solve a sudoku grid within the problem specifications outlined in the README.
+
+Author: Michael Ding
 */
 
 package main
