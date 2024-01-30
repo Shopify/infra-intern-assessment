@@ -100,12 +100,75 @@ func SolveSudoku(input [][]int) [][]int {
 			return nil
 		}
 	}
+
+	if !isValidInput(input){
+		return nil
+	}
 	
 	if !solve(input) {
 		return nil
 	}
 
 	return input
+}
+
+func isValidInput(grid [][]int) bool {
+	for i := 0; i < 9; i++ {
+		if !checkValidRow(grid, i) || !checkValidCol(grid, i) || !checkValidSection(grid, i) {
+			return false
+		}
+	}
+	return true
+}
+
+// checks if the specified row is valid
+func checkValidRow(grid [][]int, row int) bool {
+	visited := make(map[int]bool)
+	for _, value := range grid[row] {
+		if value != 0 {
+			if visited[value] {
+				return false
+			}
+			visited[value] = true
+		}
+	}
+	return true
+}
+
+// checks if the specified column is valid
+func checkValidCol(grid [][]int, col int) bool {
+    visited := make(map[int]bool)
+    for row := 0; row < 9; row++ {
+        value := grid[row][col]
+        if value != 0 {
+            if visited[value] {
+                return false
+            }
+            visited[value] = true
+        }
+    }
+    return true
+}
+
+// checks if the specified 3x3 box is valid
+func checkValidSection(grid [][]int, box int) bool {
+    visited := make(map[int]bool)
+    rowOffset := (box / 3) * 3
+    colOffset := (box % 3) * 3
+	// section row
+    for i := 0; i < 3; i++ {
+		// section column
+        for j := 0; j < 3; j++ {
+            value := grid[rowOffset+i][colOffset+j]
+            if value != 0 {
+                if visited[value] {
+                    return false
+                }
+                visited[value] = true
+            }
+        }
+    }
+    return true
 }
 
 // main function, used for debugging
@@ -121,6 +184,7 @@ func main() {
 		{0, 0, 4, 0, 2, 0, 0, 0, 0},
 		{0, 0, 7, 0, 0, 0, 6, 0, 5},
 	}
+
 
 	solved := SolveSudoku(grid)
 	if solved != nil {
