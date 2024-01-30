@@ -57,3 +57,11 @@ Your program should implement an efficient algorithm to solve the Sudoku puzzle 
 
 ## Validation: 
 To validate the correctness of the solution, you can compare the output of the program with the expected output for a set of test cases containing unsolved Sudoku puzzles.
+
+
+
+---------------------------------- Instructions ---------------------------------------------------
+
+To run the program enter "go run sudoku.go" into the terminal
+
+To run the test cases enter "go test" into the terminal
