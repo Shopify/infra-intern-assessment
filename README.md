@@ -7,6 +7,7 @@ Unfortunately, due to technical issues, I had only a few hours to complete the c
 Something to note is the code works assuming the inputted puzzle is a valid Sudoku puzzle. There were instances of the program giving a solution with an invalid puzzle. To solve this I had included a check to see if the inputted puzzle is valid. 
 
 For example: This input is not a valid Sudoku puzzle, there cannot be two 5s within the same section and column.
+```
 [
   [5, 3, 0, 0, 7, 0, 0, 0, 0],
   [5, 0, 0, 1, 9, 5, 0, 0, 0],
@@ -18,8 +19,10 @@ For example: This input is not a valid Sudoku puzzle, there cannot be two 5s wit
   [0, 0, 0, 4, 1, 9, 0, 0, 5],
   [0, 0, 0, 0, 8, 0, 0, 7, 9]
 ]
+```
 
 However, the program would output the following: 
+```
 [
   [5, 3, 4, 6, 7, 8, 9, 1, 2],
   [5, 7, 2, 1, 9, 5, 3, 4, 8],
@@ -31,6 +34,7 @@ However, the program would output the following:
   [2, 8, 7, 4, 1, 9, 6, 3, 5],
   [3, 4, 5, 2, 8, 6, 1, 7, 9]
 ]
+```
 
 
 # Technical Instructions
