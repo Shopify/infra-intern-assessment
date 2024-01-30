@@ -5,6 +5,7 @@
 4. Create a Pull Request against the Shopify Main branch when you're done and all tests are passing
 
 # Shopify Intern Assessment Production Engineering
+# Submission by Christopher Lozinski 
 
 ## Description
 
