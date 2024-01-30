@@ -1,3 +1,42 @@
+# Hersh Hajare
+## Shopify technical challenge submission
+
+## My attempt
+Unfortunately, due to technical issues, I had only a few hours to complete the challenge. I knew that I had to attempt this challenge using some sort of recursive approach. The idea of making a backtrack approach came from a class discussion involving a similar problem, so I knew exactly where to start. Once I had an idea of what the recursive function would look like, the rest came easily. To ensure my code worked properly, I used many test cases, including the most difficult Sudoku puzzles I could find online. This ensured correctness. 
+
+Something to note is the code works assuming the inputted puzzle is a valid Sudoku puzzle. There were instances of the program giving a solution with an invalid puzzle. To solve this I had included a check to see if the inputted puzzle is valid. 
+
+For example: This input is not a valid Sudoku puzzle, there cannot be two 5s within the same section and column.
+```
+[
+  [5, 3, 0, 0, 7, 0, 0, 0, 0],
+  [5, 0, 0, 1, 9, 5, 0, 0, 0],
+  [0, 9, 8, 0, 0, 0, 0, 6, 0],
+  [8, 0, 0, 0, 6, 0, 0, 0, 3],
+  [4, 0, 0, 8, 0, 3, 0, 0, 1],
+  [7, 0, 0, 0, 2, 0, 0, 0, 6],
+  [0, 6, 0, 0, 0, 0, 2, 8, 0],
+  [0, 0, 0, 4, 1, 9, 0, 0, 5],
+  [0, 0, 0, 0, 8, 0, 0, 7, 9]
+]
+```
+
+However, the program would output the following: 
+```
+[
+  [5, 3, 4, 6, 7, 8, 9, 1, 2],
+  [5, 7, 2, 1, 9, 5, 3, 4, 8],
+  [1, 9, 8, 3, 4, 2, 5, 6, 7],
+  [8, 5, 9, 7, 6, 1, 4, 2, 3],
+  [4, 2, 6, 8, 5, 3, 7, 9, 1],
+  [7, 1, 3, 9, 2, 4, 8, 5, 6],
+  [9, 6, 1, 5, 3, 7, 2, 8, 4],
+  [2, 8, 7, 4, 1, 9, 6, 3, 5],
+  [3, 4, 5, 2, 8, 6, 1, 7, 9]
+]
+```
+
+
 # Technical Instructions
 1. Fork this repo to your local Github account.
 2. Create a new branch to complete all your work in.
