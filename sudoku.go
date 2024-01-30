@@ -91,6 +91,16 @@ func printGrid(grid [][]int) {
 
 // solves the puzzle
 func SolveSudoku(input [][]int) [][]int {
+	// checks if input is 9x9
+	if len(input) != 9 {
+		return nil
+	}
+	for _, row := range input {
+		if len(row) != 9 {
+			return nil
+		}
+	}
+	
 	if !solve(input) {
 		return nil
 	}
@@ -100,16 +110,16 @@ func SolveSudoku(input [][]int) [][]int {
 
 // main function, used for debugging
 func main() {
-	grid := [][]int{
-		{5, 3, 0, 0, 7, 0, 0, 0, 0},
-		{6, 0, 0, 1, 9, 5, 0, 0, 0},
-		{0, 9, 8, 0, 0, 0, 0, 6, 0},
-		{8, 0, 0, 0, 6, 0, 0, 0, 3},
-		{4, 0, 0, 8, 0, 3, 0, 0, 1},
-		{7, 0, 0, 0, 2, 0, 0, 0, 6},
-		{0, 6, 0, 0, 0, 0, 2, 8, 0},
-		{0, 0, 0, 4, 1, 9, 0, 0, 5},
-		{0, 0, 0, 0, 8, 0, 0, 7, 9},
+	grid := [][]int {
+		{0, 0, 1, 0, 5, 0, 0, 4, 0},
+		{0, 0, 3, 1, 0, 0, 2, 6, 0},
+		{0, 0, 0, 0, 7, 0, 1, 0, 0},
+		{0, 0, 2, 7, 9, 0, 0, 1, 0},
+		{0, 0, 0, 6, 0, 0, 5, 2, 0},
+		{0, 6, 0, 0, 0, 0, 7, 0, 0},
+		{0, 5, 0, 0, 0, 0, 0, 9, 0},
+		{0, 0, 4, 0, 2, 0, 0, 0, 0},
+		{0, 0, 7, 0, 0, 0, 6, 0, 5},
 	}
 
 	solved := SolveSudoku(grid)
