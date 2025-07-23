@@ -14,6 +14,12 @@ A Sudoku puzzle is a 9x9 grid divided into nine 3x3 sub-grids. The goal is to fi
 
 Your program should implement an efficient algorithm to solve the Sudoku puzzle and print the solved grid to the console.
 
+### Example Usage:
+
+```shell
+$ cat .example-input | go run .
+```
+
 ### Example: Input:
 ```
 [
