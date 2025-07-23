@@ -6,6 +6,10 @@ import (
 )
 
 func TestSolveSudoku(t *testing.T) {
+
+	// adding extra test cases can better test solution and efficiency
+	// not sure if able to edit test files
+
 	input := [][]int{
 		{5, 3, 0, 0, 7, 0, 0, 0, 0},
 		{6, 0, 0, 1, 9, 5, 0, 0, 0},
