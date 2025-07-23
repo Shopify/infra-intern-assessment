@@ -1,18 +1,8 @@
-# Technical Instructions
-1. Fork this repo to your local Github account.
-2. Create a new branch to complete all your work in.
-3. Test your work using the provided tests
-4. Create a Pull Request against the Shopify Main branch when you're done and all tests are passing
-
-# Shopify Intern Assessment Production Engineering
+# Shopify Online Assessment - Coding Challenge
 
 ## Description
 
-Write a Go program that solves a given Sudoku puzzle. The program should take a 9x9 grid as input, where empty cells are represented by zeros (0), and output the solved Sudoku grid.
-
-A Sudoku puzzle is a 9x9 grid divided into nine 3x3 sub-grids. The goal is to fill in the empty cells with numbers from 1 to 9, such that each row, each column, and each sub-grid contains all the numbers from 1 to 9 without repetition.
-
-Your program should implement an efficient algorithm to solve the Sudoku puzzle and print the solved grid to the console.
+This repository contains my submission for the Shopify infrastructure engineering online assessment coding challenge. The challenge involved is a Go program that solves a given Sudoku puzzle. The program takes a 9x9 grid as input, where empty cells are represented by zeros, and output the solved Sudoku puzzle.
 
 ### Example: Input:
 ```
@@ -44,16 +34,23 @@ Your program should implement an efficient algorithm to solve the Sudoku puzzle 
 ]
 ```
 
-## Instructions:
-1. Write a function called SolveSudoku that takes a 9x9 grid as input and returns the solved Sudoku grid.
-2. Implement an efficient algorithm to solve the Sudoku puzzle. You can use any approach or technique you prefer.
-3. Confirm the validity of your code against the tests found in this repo.
-4. Ensure that your code is well-documented and easy to understand.
+## Implementation
 
-## Constraints:
-- The input grid will be a 9x9 two-dimensional array of integers.
-- The input grid will have exactly one solution.
-- The input grid may contain zeros (0) to represent empty cells.
+The implementation of the Sudoku solver program can be found in the `sudoku.go` file.
 
-## Validation: 
-To validate the correctness of the solution, you can compare the output of the program with the expected output for a set of test cases containing unsolved Sudoku puzzles.
+My initial approach to this problem involved using a brute-force algorithm to generate all possible ways to fill up the Sudoku grid. However, I quickly realized that this would be extremely inefficient with 9^81 possibilities.
+
+Instead, a more efficient approach to solving this problem can be achieved using backtracking. Backtracking is an algorithmic technique that explores different possibilities and "backtracks" when it realizes that the current path of choices does not lead to a valid Sudoku solution. In our case, the backtracking algorithm continues until a Sudoku solution is found or until all possibilities are exhausted.
+
+My Sudoku solver implementation consists of three methods: `SolveSudoku`, `computeSudoku`, and `validSudoku`.
+
+The `SolveSudoku` method is the entry point for solving the Sudoku puzzle. It calls the `computeSudoku` method to start the solving process.
+
+The `computeSudoku` method is the backtracking function using recursion that attempts to fill in the Sudoku board. It uses a nested loop to iterate over each cell in the board. If the current cell is empty with a zero, it tries numbers from 1 to 9 in a trial-and-error manner. For each trial, it checks if placing the current digit is valid using the `validSudoku` method. If the board is not valid, it backtracks and tries another possibility until a solution is found.
+
+The `validSudoku` method checks if placing a particular digit at a given position (row, col) is valid according to Sudoku rules. It verifies that the digit does not appear in the same row, column, or 3x3 block.
+
+## Challenges
+
+Some challenges I faced during this coding challenge included verifying the correct indices for every 3x3 grid. However, I realized that using integer division and the modulo operator, there is a cleaver way to iterate through each subgrid. Furthermore, I struggled to validate my backtracking solution since there was only one given test case. To address this, I created multiple custom test cases to ensure the correctness of my Sudoku solver.
+
