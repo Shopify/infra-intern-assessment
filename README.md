@@ -1,59 +1,76 @@
-# Technical Instructions
-1. Fork this repo to your local Github account.
-2. Create a new branch to complete all your work in.
-3. Test your work using the provided tests
-4. Create a Pull Request against the Shopify Main branch when you're done and all tests are passing
+# Sudoku Solver - Shopify-Infra-Intern
 
-# Shopify Intern Assessment Production Engineering
+## Built With
 
-## Description
+* [![Go][Go-logo]][Go-url]
+* [![APIGateway][AWS-API-Gateway-logo]][AWS-API-Gateway-url]
+* [![AWSLambda][AWS-Lambda-logo]][AWS-Lambda-URL]
 
-Write a Go program that solves a given Sudoku puzzle. The program should take a 9x9 grid as input, where empty cells are represented by zeros (0), and output the solved Sudoku grid.
+A sudoku solution must satisfy **all of the following rules**:
 
-A Sudoku puzzle is a 9x9 grid divided into nine 3x3 sub-grids. The goal is to fill in the empty cells with numbers from 1 to 9, such that each row, each column, and each sub-grid contains all the numbers from 1 to 9 without repetition.
+1.  Each of the digits `1-9` must occur exactly once in each row.
+2.  Each of the digits `1-9` must occur exactly once in each column.
+3.  Each of the digits `1-9` must occur exactly once in each of the 9 `3x3` sub-boxes of the grid.
 
-Your program should implement an efficient algorithm to solve the Sudoku puzzle and print the solved grid to the console.
+The `'0'` indicates empty cells.
 
-### Example: Input:
-```
-[
-  [5, 3, 0, 0, 7, 0, 0, 0, 0],
-  [6, 0, 0, 1, 9, 5, 0, 0, 0],
-  [0, 9, 8, 0, 0, 0, 0, 6, 0],
-  [8, 0, 0, 0, 6, 0, 0, 0, 3],
-  [4, 0, 0, 8, 0, 3, 0, 0, 1],
-  [7, 0, 0, 0, 2, 0, 0, 0, 6],
-  [0, 6, 0, 0, 0, 0, 2, 8, 0],
-  [0, 0, 0, 4, 1, 9, 0, 0, 5],
-  [0, 0, 0, 0, 8, 0, 0, 7, 9]
-]
-```
+## Pseudocode
 
-### Program Output:
-```
-[
-  [5, 3, 4, 6, 7, 8, 9, 1, 2],
-  [6, 7, 2, 1, 9, 5, 3, 4, 8],
-  [1, 9, 8, 3, 4, 2, 5, 6, 7],
-  [8, 5, 9, 7, 6, 1, 4, 2, 3],
-  [4, 2, 6, 8, 5, 3, 7, 9, 1],
-  [7, 1, 3, 9, 2, 4, 8, 5, 6],
-  [9, 6, 1, 5, 3, 7, 2, 8, 4],
-  [2, 8, 7, 4, 1, 9, 6, 3, 5],
-  [3, 4, 5, 2, 8, 6, 1, 7, 9]
-]
-```
+Backtracking:
+Backtracking Algorithm to Solve Sudoku:
+  Part 1: Check Placement
+    - Define a function `CanPlace(board, row, col, num)` that returns `True` if it's legal to place `num` at `board[row][col]`, considering Sudoku rules. Otherwise, return `False`.
 
-## Instructions:
-1. Write a function called SolveSudoku that takes a 9x9 grid as input and returns the solved Sudoku grid.
-2. Implement an efficient algorithm to solve the Sudoku puzzle. You can use any approach or technique you prefer.
-3. Confirm the validity of your code against the tests found in this repo.
-4. Ensure that your code is well-documented and easy to understand.
+  Part 2: Solve Sudoku
+    - Define a recursive function `Solve(board)` that attempts to fill the board with valid numbers.
+    - Start with the first cell (row=0, col=0).
+    - Iterate over each cell in the board row by row and column by column.
+      - If the current cell is empty (denoted by 0):
+        - Loop through possible numbers (1 to 9) and place each number in the cell.
+        - Call `CanPlace` to check if the current number can be legally placed.
+        - If `CanPlace` returns `True`, place the number and call `Solve` recursively for the next cell.
+        - If the recursive call returns `True`, the board is solved; return `True`.
+        - If placing the number does not lead to a solution, reset the cell (backtrack) and try the next number.
+      - If no number can be placed, return `False` (triggering further backtracking).
+    - If the end of a row is reached (col=9), move to the next row (row+1) and reset col to 0.
+    - The base condition is when the last row is reached (row=9), meaning the board is solved; return `True`.
+    <br>
+`Time Complexity - O(9^(n*n))`
+     
+![Image](https://i.imgur.com/jXDkaEX.jpg)
+![image](https://i.imgur.com/cqbF8rV.jpg)
 
-## Constraints:
-- The input grid will be a 9x9 two-dimensional array of integers.
-- The input grid will have exactly one solution.
-- The input grid may contain zeros (0) to represent empty cells.
 
-## Validation: 
-To validate the correctness of the solution, you can compare the output of the program with the expected output for a set of test cases containing unsolved Sudoku puzzles.
+## Deployment
+The Go code has been deployed as an AWS Lambda function, with Amazon API Gateway handling the incoming requests.
+  ![Image](https://i.imgur.com/iT2rHE8.png)
+
+### Accessing Sudoku Solver via RESTAPI through script
+
+solve_sudoku.sh is located in AWS-Lambda dir
+
+Before executing the `solve_sudoku.sh` script, it's important to ensure that the file has the appropriate permissions set. You can update the file permissions to allow the owner to read and execute the script by using the `chmod` command. Here's how you can do it:
+
+1. Open your terminal.
+2. Navigate to the directory where the `solve_sudoku.sh` file is located.
+3. Run the following command to set the permissions:
+
+```bash
+chmod 500 solve_sudoku.sh
+  ```
+* Usage
+  ```sh
+  ./solve_sudoku.sh '[[5, 3, 0, 0, 7, 0, 0, 0, 0], [6, 0, 0, 1, 9, 5, 0, 0, 0], ...]
+  ```
+  
+[AWS-logo]: https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white
+[AWS-url]: https://aws.amazon.com/
+
+[Go-logo]: https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white
+[Go-url]: https://www.terraform.io/](https://go.dev/)https://go.dev/
+
+[AWS-API-Gateway-logo]: https://img.shields.io/badge/AWS_API_Gateway-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white
+[AWS-API-Gateway-url]: https://aws.amazon.com/api-gateway/
+
+[AWS-Lambda-logo]: https://img.shields.io/badge/AWS_Lambda-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white
+[AWS-Lambda-url]: https://aws.amazon.com/lambda/
