@@ -1,18 +1,15 @@
-# Technical Instructions
-1. Fork this repo to your local Github account.
-2. Create a new branch to complete all your work in.
-3. Test your work using the provided tests
-4. Create a Pull Request against the Shopify Main branch when you're done and all tests are passing
-
 # Shopify Intern Assessment Production Engineering
 
-## Description
+## Description:
+Author: Hridyansh Dugar
 
-Write a Go program that solves a given Sudoku puzzle. The program should take a 9x9 grid as input, where empty cells are represented by zeros (0), and output the solved Sudoku grid.
+This Go program solves the given Sudoku puzzle using a backtracking algorithm. The program takes a 9x9 grid as an input(anything else will fail the validation check). The program then creates an empty grid of size 9x9 and copies the grid to the newly created grid and uses the back track propagation algorithm on it to solve the sudoku, if no solution is found it returns nil else it returns the solved grid.
 
-A Sudoku puzzle is a 9x9 grid divided into nine 3x3 sub-grids. The goal is to fill in the empty cells with numbers from 1 to 9, such that each row, each column, and each sub-grid contains all the numbers from 1 to 9 without repetition.
+## Testing:
+Additional test cases have been added to check for the algorithm's correctness, tests to check for validation error and cases where no solution is found are also added.
 
-Your program should implement an efficient algorithm to solve the Sudoku puzzle and print the solved grid to the console.
+## Original Idea:
+Originally I had an idea to implement a pipelined version of the backtracking algorithm where many subroutines would concurrently try to solve the sudoku but since Im fairly new to Go (I learnt it while coding this assessment out), i wasnt able to implement that well, and i found that concurrency is well abstracted in Go which is a good thing but it makes debugging harder for beginners. Overall i had fun implementing the sudoku solver in a language new to me :) !
 
 ### Example: Input:
 ```
@@ -43,17 +40,3 @@ Your program should implement an efficient algorithm to solve the Sudoku puzzle 
   [3, 4, 5, 2, 8, 6, 1, 7, 9]
 ]
 ```
-
-## Instructions:
-1. Write a function called SolveSudoku that takes a 9x9 grid as input and returns the solved Sudoku grid.
-2. Implement an efficient algorithm to solve the Sudoku puzzle. You can use any approach or technique you prefer.
-3. Confirm the validity of your code against the tests found in this repo.
-4. Ensure that your code is well-documented and easy to understand.
-
-## Constraints:
-- The input grid will be a 9x9 two-dimensional array of integers.
-- The input grid will have exactly one solution.
-- The input grid may contain zeros (0) to represent empty cells.
-
-## Validation: 
-To validate the correctness of the solution, you can compare the output of the program with the expected output for a set of test cases containing unsolved Sudoku puzzles.
